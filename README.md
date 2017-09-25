@@ -1,2 +1,2 @@
 # imgwho.github.io
-some description and resume
+some descriptions and resume

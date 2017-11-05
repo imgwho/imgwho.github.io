@@ -131,8 +131,8 @@
       var allImgWidth = storage_img_width.length === 0 ? 0 : storage_img_width.reduce((pre, next) => pre + next) 
       //计算当前图片在初始化高度下的宽度
       var imgWidth = img_initial_height * info.width / info.height 
-      //判断正在等待渲染的一行是否能够容纳下当前元
-      if (allImgWidth + imgWidth > wrapperWidth) { 素
+      //判断正在等待渲染的一行是否能够容纳下当前元素
+      if (allImgWidth + imgWidth > wrapperWidth) { 
         img_storage_array.map((img, index) => { 
           //容纳不下，将暂存区元素渲染到页面上
           var img_width = wrapperWidth * storage_img_width[index] / allImgWidth

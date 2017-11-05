@@ -2,248 +2,154 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <title>barrel</title>
-
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>barrel same height</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    html {
+      background-color: rgba(0, 0, 0, .2)
     }
 
-    header {
-      padding: 40px 0;
-      text-align: center;
-    }
-
-    header input {
-      width: 220px;
-      padding: 5px;
-      outline: none;
-    }
-
-    main {
-      position: relative;
-      margin: 10px;
-    }
-
-    main::after {
-      content: '';
-      display: block;
-      clear: both;
-    }
-
-    main>figure {
-      float: left;
-      padding: 5px;
-    }
-
-    main>figure img {
+    .images {
       width: 100%;
-      height: 100%;
+      overflow: hidden;
+      font-size: 0;
+    }
+
+    .images>img {
+      display: inline-block;
+      box-sizing: border-box;
+      border: 2px solid #ffffff;
+    }
+
+    .images>img:hover {
+      transform: scale(2);
+      position: relative;
+      z-index: 1;
+      transition: all 3s
+    }
+
+    .loading {
+      visibility: hidden;
+      text-align: center;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      line-height: 50px;
+      color: #ffffff;
+      background-color: rgba(0, 0, 0, .5);
+      margin: 0;
+      transition: all .5s;
+    }
+
+    .loading-show {
+      visibility: visible;
+    }
+
+     ::-webkit-scrollbar {
+      width: 0;
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <input id="search-ipt" placeholder="输入搜索词并回车" type="text">
-  </header>
-  <main>
-    <!-- <figure>
-      <img src="https://cdn.pixabay.com/photo/2015/03/12/17/57/buddha-670573_150.jpg" alt="">
-    </figure> -->
-
-
-  </main>
-
-
+  <div class="images"></div>
+  <p class="loading">加载中 ...</p>
   <script>
-    //事件管理器
-    class Event {
-      static on(type, handler) {
-        return document.addEventListener(type, handler)
-      }
-      static trigger(type, data) {
-        return document.dispatchEvent(new CustomEvent(type, {
-          detail: data
-        }))
+    var page_index, //ajax获取数据的页数
+      storage_img_width, //存储暂存区的图片在初始化高度下的宽度，用来判断是否容纳的下下一个元素
+      img_storage_array, //存储在暂存区的图片元素  tips:暂存区---用来存储当前正在渲染的一行的元素
+      img_initial_height //图片初始化高度 
+
+    window.onload = function () {
+      initialArgs()
+      getImages(50, page_index++)
+    }
+
+    window.onscroll = function () {
+      var doc = document.documentElement
+      var height = document.querySelector('.images').clientHeight
+      var position = doc.clientHeight + doc.scrollTop
+      if (position >= height * 0.75) {
+        getImages(50, page_index++)
       }
     }
 
-    //Event.on('search', e=>console.log(e.detail))
-    //Event.trigger('search', 'start to search')
-
-
-    // 
-    class Interaction {
-      constructor() {
-        this.searchInput = document.querySelector('#search-ipt')
-        this.bind()
-      }
-      bind() {
-        this.searchInput.oninput = this.throttle(() => {
-          Event.trigger('search', this.searchInput.value)
-        }, 300)
-        document.body.onresize = this.throttle(() => Event.trigger('resize'), 300)
-        document.body.onscroll = this.throttle(() => {
-          if (this.isToBottom()) {
-            Event.trigger('bottom')
-          }
-        })
-      }
-      throttle(fn, delay) {
-        let timer = null
-        return () => {
-          clearTimeout(timer)
-          timer = setTimeout(() => fn.bind(this)(arguments), delay)
-        }
-      }
-      isToBottom() {
-        return document.body.scrollHeight - document.body.scrollTop - document.documentElement.clientHeight < 5
-      }
+    window.onresize = function () {
+      if (/Mobile/.test(window.navigator.userAgent))
+        return false
+      initialArgs()
+      setTimeout(() => getImages(50, page_index++), 200)
     }
-    new Interaction()
-    // Event.on('search', e=>console.log(e.detail))
-    // Event.on('resize', e=>console.log('resize'))
 
 
-    // 加载数据的模块
-    class Loader {
-      constructor() {
-        this.page = 1
-        this.per_page = 30
-        this.keyword = ''
-        this.total_hits = 0
-        this.url = 'https://pixabay.com/api/'
-
-        this.bind()
-      }
-      bind() {
-        Event.on('search', e => {
-          this.page = 1
-          this.keyword = e.detail
-          this.loadData()
-            .then(data => {
-              console.log(this)
-              this.total_hits = data.totalHits
-              Event.trigger('load_first', data)
-            })
-            .catch(err => console.log(err))
-        })
-        Event.on('bottom', e => {
-          if (this.loading) return
-          if (this.page * this.per_page > this.total_hits) {
-            Event.trigger('load_over')
-            return
-          }
-          this.loading = true
-
-            ++this.page
-          this.loadData()
-            .then(data => Event.trigger('load_more', data))
-            .catch(err => console.log(err))
-        })
-      }
-      loadData() {
-        return fetch(this.fullUrl(this.url, {
-            key: '5856858-0ecb4651f10bff79efd6c1044',
-            q: this.keyword,
-            image_type: 'photo',
-            per_page: this.per_page,
-            page: this.page
-          }))
-          .then((res) => {
-            this.loading = false
-            return res.json()
-          })
-      }
-      fullUrl(url, json) {
-        let arr = []
-        for (let key in json) {
-          arr.push(encodeURIComponent(key) + '=' + encodeURIComponent(json[key]))
-        }
-        return url + '?' + arr.join('&')
-      }
-    }
-    new Loader()
-
-
-
-    class Barrel {
-      constructor() {
-        this.mainNode = document.querySelector('main')
-        this.rowHeightBase = 200
-        this.rowTotalWidth = 0
-        this.rowList = []
-        this.allImgInfo = []
-
-        this.bind()
-      }
-      bind() {
-        Event.on('load_first', e => {
-          this.mainNode.innerHTML = ''
-          this.rowList = []
-          this.rowTotalWidth = 0
-          this.allImgInfo = [...e.detail.hits]
-
-          this.render(e.detail.hits)
-        })
-
-        Event.on('load_more', e => {
-          console.log('load_more')
-          this.allImgInfo.push(...e.detail.hits)
-          this.render(e.detail.hits)
-        })
-
-        Event.on('load_over', e => {
-          this.layout(this.rowList, this.rowHeightBase)
-        })
-
-        Event.on('resize', e => {
-          this.mainNode.innerHTML = ''
-          this.rowList = []
-          this.rowTotalWidth = 0
-          this.render(this.allImgInfo)
-        })
-      }
-      render(data) {
-        if (!data) return
-        let mainNodeWidth = parseFloat(getComputedStyle(this.mainNode).width)
-        data.forEach(imgInfo => {
-          imgInfo.ratio = imgInfo.webformatWidth / imgInfo.webformatHeight
-          imgInfo.imgWidthAfter = imgInfo.ratio * this.rowHeightBase
-
-          if (this.rowTotalWidth + imgInfo.imgWidthAfter <= mainNodeWidth) {
-            this.rowList.push(imgInfo)
-            this.rowTotalWidth += imgInfo.imgWidthAfter
-          } else {
-            let rowHeight = (mainNodeWidth / this.rowTotalWidth) * this.rowHeightBase
-            this.layout(this.rowList, rowHeight)
-            this.rowList = [imgInfo]
-            this.rowTotalWidth = imgInfo.imgWidthAfter
-          }
-
-        })
-      }
-
-      layout(row, rowHeight) {
-        row.forEach(imgInfo => {
-          var figureNode = document.createElement('figure')
-          var imgNode = document.createElement('img')
-          imgNode.src = imgInfo.webformatURL
-          figureNode.appendChild(imgNode)
-          figureNode.style.height = rowHeight + 'px'
-          figureNode.style.width = rowHeight * imgInfo.ratio + 'px'
-          this.mainNode.appendChild(figureNode)
-        })
-
+    //初始化所有全局参数
+    function initialArgs() {
+      var images = document.querySelector('.images')
+      images.innerHTML = ''
+      page_index = 0
+      storage_img_width = []
+      img_storage_array = []
+      if (images.clientWidth <= 800) {
+        img_initial_height = 100
+      } else {
+        img_initial_height = 200
       }
     }
 
-    new Barrel()
+    //ajax获取数据
+    function getImages(number, index) {
+      var url = `https://gank.io/api/data/福利/${number}/${index}`
+      var loading = document.querySelector('.loading')
+      loading.classList.add('loading-show')
+      fetch(url).then(res => res.json()).then(res => {
+        loading.classList.remove('loading-show')
+        res.results.map(info => {
+          renderImage(info.url, appendImg)
+        })
+      })
+    }
+
+    function renderImage(url, callback) {
+      var img = new Image()
+      img.src = url
+      img.onload = function () {
+        callback({
+          width: img.width,
+          height: img.height
+        }, img) //图片加载完成后将图片元素以及图片宽高传递给渲染函数
+      }
+    }
+
+    function appendImg(info, target) {
+      var images = document.querySelector('.images')
+      //计算容器的宽度
+      var wrapperWidth = images.offsetWidth 
+      //计算已在暂存区图片的总宽度
+      var allImgWidth = storage_img_width.length === 0 ? 0 : storage_img_width.reduce((pre, next) => pre + next) 
+      //计算当前图片在初始化高度下的宽度
+      var imgWidth = img_initial_height * info.width / info.height 
+      //判断正在等待渲染的一行是否能够容纳下当前元
+      if (allImgWidth + imgWidth > wrapperWidth) { 素
+        img_storage_array.map((img, index) => { 
+          //容纳不下，将暂存区元素渲染到页面上
+          var img_width = wrapperWidth * storage_img_width[index] / allImgWidth
+          img.style.width = Number.parseInt(img_width) + 'px'
+          img.style.height = (img_initial_height * img_width / storage_img_width[index] | 0) + 'px'
+          images.appendChild(img)
+        })
+        //清空暂存区元素，将当前元素放入其中
+        img_storage_array = [target] 
+        //记录新的暂存区元素的宽度
+        storage_img_width = [imgWidth] 
+      } else { 
+        //如果容纳得下，将其放入暂存区
+        img_storage_array.push(target)
+        storage_img_width.push(imgWidth)
+      }
+    }
   </script>
 </body>
 

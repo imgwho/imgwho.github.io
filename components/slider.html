@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <title>Carousel</title>
+  <style>
+    ul,
+    li {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .carousel {
+      position: relative;
+      width: 400px;
+      height: 250px;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+
+    .carousel .image-wrap {
+      position: absolute;
+    }
+
+    .carousel .image-wrap li {
+      float: left;
+    }
+
+    .carousel .image-box {
+      display: block;
+    }
+
+    .carousel .image-box img {
+      width: 400px;
+      height: 250px;
+      vertical-align: middle;
+    }
+
+    .carousel .arrow {
+      position: absolute;
+      top: 50%;
+      margin-top: -15px;
+      width: 30px;
+      height: 30px;
+      border: 1px solid;
+      border-radius: 50%;
+      color: #fff;
+      font-weight: 700;
+      line-height: 30px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .carousel .prev {
+      left: 10px;
+    }
+
+    .carousel .next {
+      right: 10px;
+    }
+
+    .carousel .indicator {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 0;
+    }
+
+    .carousel .indicator li {
+      display: inline-block;
+      width: 30px;
+      height: 6px;
+      margin: 10px 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .carousel .indicator li.active {
+      background-color: #f00;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="carousel">
+    <ul class="image-wrap">
+      <li>
+        <a class="image-box" href="#">
+          <img src="https://ws1.sinaimg.cn/large/b8d8d39bgy1fklj5y6gbkj20dc0a0q35.jpg">
+        </a>
+      </li>
+      <li>
+        <a class="image-box" href="#">
+          <img src="https://ws1.sinaimg.cn/large/b8d8d39bgy1fklj5y6frlj20dc0a074c.jpg">
+        </a>
+      </li>
+      <li>
+        <a class="image-box" href="#">
+          <img src="https://ws1.sinaimg.cn/large/b8d8d39bgy1fklj5y7d2bj20dc0a0jrv.jpg">
+        </a>
+      </li>
+      <li>
+        <a class="image-box" href="#">
+          <img src="https://ws1.sinaimg.cn/large/b8d8d39bgy1fklj5y74ijj20dc0a0wfd.jpg">
+        </a>
+      </li>
+      <li>
+        <a class="image-box" href="#">
+          <img src="https://ws1.sinaimg.cn/large/b8d8d39bgy1fl7rcm7ufrj20b406y0t3.jpg"/>
+        </a>
+      </li>
+      
+    </ul>
+    <div class="arrow prev"><</div>
+    <div class="arrow next">></div>
+    <ul class="indicator">
+      <li class="active"></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </div>
+  <script>
+    let carousel = (function () {
+      function Carousel($ct, interval) {
+        this.interval = interval
+        this.$ct = $ct
+        this.$imgWrap = $ct.find('.image-wrap')
+        this.$imgs = this.$imgWrap.children()
+        this.$prevBtn = $ct.find('.prev')
+        this.$nextBtn = $ct.find('.next')
+        this.$indicator = $ct.find('.indicator')
+
+        this.imgWidth = this.$imgs.width()
+        this.imgCount = this.$imgs.length
+        this.idx = 0
+        this.isAnimated = false
+
+        this.init()
+        this.bind()
+      }
+
+      Carousel.prototype.init = function () {
+        this.$imgWrap.prepend(this.$imgs.last().clone())
+          .append(this.$imgs.first().clone())
+          .css({
+            left: -this.imgWidth,
+            width: (this.imgCount + 2) * this.imgWidth
+          })
+      }
+
+      Carousel.prototype.bind = function () {
+        let self = this;
+        this.$prevBtn.click(function () {
+          self.checkPlay(-1)
+        })
+        this.$nextBtn.click(function () {
+          self.checkPlay(1)
+        })
+        if (this.$indicator) {
+          this.$indicator.on('click', 'li', function () {
+            self.checkPlay($(this).index() - self.idx)
+          })
+        }
+        if (this.interval) {
+          this.autoplay()
+          this.$ct.hover(this.stopAuto.bind(this), this.autoplay.bind(this))
+        }
+      }
+
+      Carousel.prototype.checkPlay = function (num) {
+        if (!this.isAnimated) {
+          this.isAnimated = true
+          this.play(num)
+        }
+      }
+
+      Carousel.prototype.play = function (num) {
+        let self = this
+        this.$imgWrap.animate({
+          left: '-=' + self.imgWidth * num
+        }, function () {
+          self.idx = (self.idx + num + self.imgCount) % self.imgCount
+          self.$imgWrap.css({
+            left: -self.imgWidth * (self.idx + 1)
+          })
+          self.$indicator && self.setIndicator()
+          self.isAnimated = false
+        })
+      }
+
+      Carousel.prototype.setIndicator = function () {
+        this.$indicator.find('li').removeClass('active')
+          .eq(this.idx).addClass('active')
+      }
+
+      Carousel.prototype.stopAuto = function () {
+        clearTimeout(this.timeoutID)
+      }
+
+      Carousel.prototype.autoplay = function () {
+        this.timeoutID = setTimeout(() => {
+          this.checkPlay(1)
+          this.autoplay()
+        }, this.interval)
+      }
+
+      return {
+        init: function ($ct, interval) {
+          $ct.each(function () {
+            new Carousel($(this), interval)
+          })
+        }
+      }
+    })()
+
+    carousel.init($('.carousel'), 2000)
+  </script>
+</body>
+
+</html>

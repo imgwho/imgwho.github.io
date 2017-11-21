@@ -147,6 +147,7 @@
 	})
 
 
+	//获取数据
 	function getData(callback) {
 		$.ajax({
 			url: 'http://platform.sina.com.cn/slide/album_tech',
@@ -162,19 +163,19 @@
 				callback(ret.data); //如果数据没问题，那么生成节点并摆放好位置
 				curPage++
 			} else {
-				console.log('get error data');
+				console.log('get error data')
 			}
-		});
+		})
 	}
 
 
 	function getNode(item) {
 		var tpl = ''
-		tpl += '<li class="item">';
-		tpl += ' <a href="' + item.url + '" class="link"><img src="' + item.img_url + '" alt=""></a>';
-		tpl += ' <h4 class="header">' + item.short_name + '</h4>';
-		tpl += '<p class="desp">' + item.short_intro + '</p>';
-		tpl += '</li>';
+		tpl += '<li class="item">'
+		tpl += ' <a href="' + item.url + '" class="link"><img src="' + item.img_url + '" alt=""></a>'
+		tpl += ' <h4 class="header">' + item.short_name + '</h4>'
+		tpl += '<p class="desp">' + item.short_intro + '</p>'
+		tpl += '</li>'
 
 		return $(tpl)
 	}
@@ -182,12 +183,12 @@
 	function waterFallPlace($node) {
 
 		var idx = 0,
-			minSumHeight = colSumHeight[0];
+			minSumHeight = colSumHeight[0]
 
-		for (var i = 0; i < colSumHeight.length; i++) {
+		for (var i = 0 i < colSumHeight.length i++) {
 			if (colSumHeight[i] < minSumHeight) {
-				idx = i;
-				minSumHeight = colSumHeight[i];
+				idx = i
+				minSumHeight = colSumHeight[i]
 			}
 		}
 
@@ -195,22 +196,22 @@
 			left: nodeWidth * idx,
 			top: minSumHeight,
 			opacity: 1
-		});
+		})
 
-		colSumHeight[idx] = $node.outerHeight(true) + colSumHeight[idx];
-		$('#pic-ct').height(Math.max.apply(null, colSumHeight));
+		colSumHeight[idx] = $node.outerHeight(true) + colSumHeight[idx]
+		$('#pic-ct').height(Math.max.apply(null, colSumHeight))
 
 	}
 
 	function isVisible($el) {
 		var scrollH = $(window).scrollTop(),
 			winH = $(window).height(),
-			top = $el.offset().top;
+			top = $el.offset().top
 
 		if (top < winH + scrollH) {
-			return true;
+			return true
 		} else {
-			return false;
+			return false
 		}
 	}
 
@@ -223,37 +224,38 @@
 
 
 
-		var clock;
+		// 函数防抖
+		var clock
 		$(window).on('scroll', function(){
 	    //用户鼠标滚轮滚动一次，有多次事件响应。下面的 setTimeout 主要是为性能考虑，只在最后一次事件响应的时候执行 checkshow
 	    if(clock){
-	      clearTimeout(clock);
+	      clearTimeout(clock)
 	    }
 	    clock = setTimeout(function(){
-	      checkShow();
-	    }, 100);
-		});
+	      checkShow()
+	    }, 100)
+		})
 
 	  // 用户第一次打开页面，还未滚动窗口的时候需要执行一次 checkShow
-		checkShow();
+		checkShow()
 
 	
 
 	function checkShow() {
 		if (isShow($('#load'))) {
-			loadAndPlace();
+			loadAndPlace()
 		}
 	}
 
 	function isShow($el) {
 		var scrollH = $(window).scrollTop(),
 			winH = $(window).height(),
-			top = $el.offset().top;
+			top = $el.offset().top
 
 		if (top < winH + scrollH) {
-			return true;
+			return true
 		} else {
-			return false;
+			return false
 		}
 	}
 
@@ -262,7 +264,7 @@
 	// 获取数据，并且摆放位置
 
 	var curPage = 1,
-		perPageCount = 9;
+		perPageCount = 9
 
 	function loadAndPlace() {
 		$.ajax({
@@ -276,18 +278,18 @@
 			}
 		}).done(function (ret) {
 			if (ret && ret.status && ret.status.code === "0") {
-				place(ret.data); //如果数据没问题，那么生成节点并摆放好位置
+				place(ret.data) //如果数据没问题，那么生成节点并摆放好位置
 				curPage++
 			} else {
-				console.log('get error data');
+				console.log('get error data')
 			}
-		});
+		})
 	}
 
 
 
 	function place(nodeList) {
-		console.log(nodeList);
+		console.log(nodeList)
 		$.each(nodeList, function (index, item) {
 			var $node = getNode(item)
 			$node.find('img').load(function () {
@@ -298,21 +300,21 @@
 
 		/*
 
-		var $nodes = renderData(nodeList);  //节点生成后添加到页面上
+		var $nodes = renderData(nodeList)  //节点生成后添加到页面上
 
-		var defereds = [];  //创建存储 defered 对象的数组
+		var defereds = []  //创建存储 defered 对象的数组
 		$nodes.find('img').each(function(){
-			var defer = $.Deferred();
+			var defer = $.Deferred()
 			$(this).load(function(){
-				defer.resolve();
-			});   //当每个图片加载完成后，执行 resolve
-			defereds.push(defer);
-		});
+				defer.resolve()
+			})   //当每个图片加载完成后，执行 resolve
+			defereds.push(defer)
+		})
 		$.when.apply(null,defereds).done(function() { //当所有的图片都执行 resolve 后，即全部图片加载后，执行下面的内容
-			console.log('new images all loaded ...');
+			console.log('new images all loaded ...')
 			//当节点里的图片全部加载后再使用瀑布流计算，否则会因为图片未加载 item 高度计算错误导致瀑布流高度计算出问题
-			waterFallPlace($nodes);
-		});
+			waterFallPlace($nodes)
+		})
 		*/
 	}
 
@@ -322,24 +324,25 @@
 
 	var colSumHeight = [],
 		nodeWidth = $('.item').outerWidth(true),
-		colNum = parseInt($('#pic-ct').width() / nodeWidth);
+		colNum = parseInt($('#pic-ct').width() / nodeWidth)
 
 	for (var i = 0; i < colNum; i++) {
 		colSumHeight.push(0)
 	}
 
+	//改变样式
 	function waterFallPlace($nodes) {
 		$nodes.each(function () {
-			var $cur = $(this);
+			var $cur = $(this)
 			//colSumHeight = [100, 250, 80, 200]
 
 			var idx = 0,
-				minSumHeight = colSumHeight[0];
+				minSumHeight = colSumHeight[0]
 
 			for (var i = 0; i < colSumHeight.length; i++) {
 				if (colSumHeight[i] < minSumHeight) {
-					idx = i;
-					minSumHeight = colSumHeight[i];
+					idx = i
+					minSumHeight = colSumHeight[i]
 				}
 			}
 
@@ -349,39 +352,41 @@
 				opacity: 1
 			});
 
-			colSumHeight[idx] = $cur.outerHeight(true) + colSumHeight[idx];
-			$('#pic-ct').height(Math.max.apply(null, colSumHeight));
-		});
+			colSumHeight[idx] = $cur.outerHeight(true) + colSumHeight[idx]
+			$('#pic-ct').height(Math.max.apply(null, colSumHeight))
+		})
 
 	}
 
 
 
+	// 获取DOM节点
 	function getNode(item) {
 		var tpl = ''
-		tpl += '<li class="item">';
-		tpl += ' <a href="' + item.url + '" class="link"><img src="' + item.img_url + '" alt=""></a>';
-		tpl += ' <h4 class="header">' + item.short_name + '</h4>';
-		tpl += '<p class="desp">' + item.short_intro + '</p>';
-		tpl += '</li>';
+		tpl += '<li class="item">'
+		tpl += ' <a href="' + item.url + '" class="link"><img src="' + item.img_url + '" alt=""></a>'
+		tpl += ' <h4 class="header">' + item.short_name + '</h4>'
+		tpl += '<p class="desp">' + item.short_intro + '</p>'
+		tpl += '</li>'
 
 		return $(tpl)
 	}
 
 
+	//渲染数据
 	function renderData(items) {
 		var tpl = '',
-			$nodes;
+			$nodes
 		for (var i = 0; i < items.length; i++) {
-			tpl += '<li class="item">';
-			tpl += ' <a href="' + items[i].url + '" class="link"><img src="' + items[i].img_url + '" alt=""></a>';
-			tpl += ' <h4 class="header">' + items[i].short_name + '</h4>';
-			tpl += '<p class="desp">' + items[i].short_intro + '</p>';
-			tpl += '</li>';
+			tpl += '<li class="item">'
+			tpl += ' <a href="' + items[i].url + '" class="link"><img src="' + items[i].img_url + '" alt=""></a>'
+			tpl += ' <h4 class="header">' + items[i].short_name + '</h4>'
+			tpl += '<p class="desp">' + items[i].short_intro + '</p>'
+			tpl += '</li>'
 		}
-		$nodes = $(tpl);
-		$('#pic-ct').append($nodes);
-		return $nodes;
+		$nodes = $(tpl)
+		$('#pic-ct').append($nodes)
+		return $nodes
 	}
 </script>
 

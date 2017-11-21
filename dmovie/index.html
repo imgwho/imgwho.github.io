@@ -231,11 +231,13 @@
   </footer>
 
   <script>
+    //滑动到底部时再加载更多
     var Helper = {
       isToEnd: function ($viewport, $content) {
         return $viewport.height() + $viewport.scrollTop() + 10 > $content.height()
       },
 
+      //创建DOM节点,网页模板
       createNode: function (movie) {
         var template =
           `<div class="item">
@@ -252,6 +254,7 @@
               </div>
             </a>
           </div>`
+        // 读取各个DOM节点的文本,抓取信息,字符串拼接
         var $node = $(template)
         $node.find('a').attr('href', movie.alt)
         $node.find('.cover img')
@@ -280,7 +283,7 @@
     }
 
 
-
+    //排行榜250
     var Top250Page = {
 
       init: function () {
@@ -308,6 +311,7 @@
         })
       },
 
+      //请求豆瓣电影api获取数据
       getData: function (callback) {
         var _this = this
         if (_this.isLoading) return;
@@ -333,6 +337,7 @@
           _this.$container.find('.loading').hide()
         })
       },
+      //渲染页面
       render: function (data) {
         var _this = this
         data.subjects.forEach(function (movie) {
@@ -341,6 +346,7 @@
       }
     }
 
+    //北美电影排行榜
     var UsBoxPage = {
       init: function () {
         this.$container = $('#beimei')
@@ -377,6 +383,7 @@
       }
     }
 
+    //搜索电影
     var SearchPage = {
       init: function () {
         this.$container = $('#search')
@@ -419,6 +426,7 @@
       }
     }
 
+    //初始化
     var App = {
       init: function () {
         this.bind()

@@ -136,15 +136,20 @@
     let carousel = (function () {
       function Carousel($ct, interval) {
         this.interval = interval
+        //获取各个DOM节点
         this.$ct = $ct
         this.$imgWrap = $ct.find('.image-wrap')
         this.$imgs = this.$imgWrap.children()
         this.$prevBtn = $ct.find('.prev')
         this.$nextBtn = $ct.find('.next')
+        
+        // ul容器
         this.$indicator = $ct.find('.indicator')
 
         this.imgWidth = this.$imgs.width()
+        // 图片个数
         this.imgCount = this.$imgs.length
+        // 图片索引
         this.idx = 0
         this.isAnimated = false
 
@@ -152,6 +157,7 @@
         this.bind()
       }
 
+      // 初始化,在第一张和最后一张图分别克隆自身对象
       Carousel.prototype.init = function () {
         this.$imgWrap.prepend(this.$imgs.last().clone())
           .append(this.$imgs.first().clone())

@@ -154,10 +154,13 @@
       this.bind()
     }
 
+    // 获取所有li
     Tab.prototype.init = function () {
       this.tabLis = this.ct.querySelectorAll('.tab-header>li')
       this.tabPanels = this.ct.querySelectorAll('.tab-container>li')
     }
+
+    //调整样式
     Tab.prototype.bind = function () {
       var _this = this
       this.tabLis.forEach(function (tabli) {

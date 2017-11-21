@@ -105,6 +105,7 @@
         scrollTop = $(window).scrollTop(),
         offsetTop = this.$target.offset().top,
         nodeHeight = this.$target.height()
+        // 如果图片还没有出现在屏幕视窗
       if (windowHeight + scrollTop > offsetTop && scrollTop < offsetTop + nodeHeight) {
         return true
       } else {
@@ -114,6 +115,7 @@
 
 
 
+    //,立即执行函数
     var Lazy = (function () {
 
       return {
@@ -143,6 +145,7 @@
 
 
 
+    //把图片加上显示属性样式
     function showImg($img) {
       var imgUrl = $img.attr('data-src')
       $img.attr('src', imgUrl)

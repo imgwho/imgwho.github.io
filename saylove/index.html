@@ -18,25 +18,27 @@
       font-family: 'CupiddeLocke.ttf'
     }
 
+    /* 引入自定义字体 */
     @font-face {
       font-family: 'CupiddeLocke.ttf';
       src: url(CupiddeLocke.ttf);
       font-weight: 400;
-      font-style: normal
+      font-style: normal;
     }
 
     #container {
       width: 100%;
       height: 100%;
       position: fixed;
-      perspective: 1000
+      /* perspective 属性定义 3D 元素距视图的距离，以像素计。该属性允许您改变 3D 元素查看 3D 元素的视图。当为元素定义 perspective 属性时，其子元素会获得透视效果，而不是元素本身。 */
+      perspective: 1000;
     }
 
     #flipper {
       width: 100%;
       height: 100%;
       transition: .5s;
-      transform-style: preserve-3d
+      transform-style: preserve-3d;
     }
 
     #main {
@@ -44,7 +46,8 @@
       background: #333;
       text-align: center;
       position: relative;
-      transform: rotateY(0deg)
+      /* Y轴翻转 */
+      transform: rotateY(0deg);
     }
 
     #text {
@@ -54,14 +57,14 @@
       /* 设置文本默认不换行 */
       white-space: nowrap;
       display: table-cell;
-      vertical-align: middle
+      vertical-align: middle;
     }
 
     #about {
       color: #333;
       background: #f8f8f8;
       margin-bottom: 10px;
-      transform: rotateY(180deg)
+      transform: rotateY(180deg);
     }
 
     #main,
@@ -71,33 +74,33 @@
       width: 100%;
       height: 100%;
       position: absolute;
-      backface-visibility: hidden
+      backface-visibility: hidden;
     }
 
     .header {
       margin: 15px 0 5px 0;
       font-size: 30px;
-      text-align: center
+      text-align: center;
     }
 
     .world {
       text-align: center;
       margin-bottom: 20px;
-      text-decoration: none
+      text-decoration: none;
     }
 
     .footer {
       margin-top: 30px;
-      text-align: center
+      text-align: center;
     }
 
     .footer p {
-      margin: 5px 0
+      margin: 5px 0;
     }
 
     a {
       color: #08c;
-      text-decoration: none
+      text-decoration: none;
     }
 
     #avatar {
@@ -109,7 +112,7 @@
     #qrcode {
       width: 280px;
       margin: auto;
-      display: block
+      display: block;
     }
   </style>
 </head>

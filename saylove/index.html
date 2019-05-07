@@ -139,8 +139,8 @@
       </div>
     </div>
   </div>
-  <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
-  <script src="http://apps.bdimg.com/libs/jquerymobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+  <!-- <script src="http://apps.bdimg.com/libs/jquerymobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> -->
   <script type="text/javascript">
     //选择3个容器
     $text = $('#text')
@@ -195,7 +195,7 @@
       console.log('event:keyup', 'keyCode', e.keyCode, 'width', $(this).width(), 'height', $(this).height())
       var keyCode = e.keyCode
       //如果是空格或者回车事件就忽略
-      if (keyCode === 32 || keyCode === 13) return false 
+      if (keyCode === 32 || keyCode === 13) return false
 
       //记录屏幕宽度
       var innerWidth = window.innerWidth
@@ -203,7 +203,7 @@
       var maxFontSize = window.innerHeight - 40
 
       //如果是删除事件
-      if (keyCode === 8) { 
+      if (keyCode === 8) {
         var timer = setInterval(function () {
           // 如果文本小于屏幕宽度
           if ($text.width() <= innerWidth) {
@@ -229,7 +229,7 @@
         }, 10)
       }
 
-    //使用localstorage保存文本内容
+      //使用localstorage保存文本内容
     }).on('keyup', function (e) {
       if (localStorage) localStorage.setItem('text', $text.text())
     })
@@ -263,11 +263,12 @@
     ! function (t, e) {
       function s() {
         if (this.hasDeviceMotion = "ondevicemotion" in t, this.threshold = 10, this.lastTime = new Date, this.lastX =
-          null, this.lastY = null, this.lastZ = null, "function" == typeof e.CustomEvent) this.event = new e.CustomEvent(
-          "shake", {
-            bubbles: !0,
-            cancelable: !0
-          });
+          null, this.lastY = null, this.lastZ = null, "function" == typeof e.CustomEvent) this.event = new e
+          .CustomEvent(
+            "shake", {
+              bubbles: !0,
+              cancelable: !0
+            });
         else {
           if ("function" != typeof e.createEvent) return !1;
           this.event = e.createEvent("Event"), this.event.initEvent("shake", !0, !0)
@@ -284,9 +285,11 @@
           h = 0,
           o = 0,
           l = 0;
-        return null === this.lastX && null === this.lastY && null === this.lastZ ? (this.lastX = n.x, this.lastY = n.y,
+        return null === this.lastX && null === this.lastY && null === this.lastZ ? (this.lastX = n.x, this.lastY = n
+          .y,
           void(this.lastZ = n.z)) : (h = Math.abs(this.lastX - n.x), o = Math.abs(this.lastY - n.y), l = Math.abs(
-            this.lastZ - n.z), (h > this.threshold && o > this.threshold || h > this.threshold && l > this.threshold ||
+            this.lastZ - n.z), (h > this.threshold && o > this.threshold || h > this.threshold && l > this
+            .threshold ||
             o > this.threshold && l > this.threshold) && (s = new Date, i = s.getTime() - this.lastTime.getTime(),
             i > 300 && (t.dispatchEvent(this.event), this.lastTime = new Date)), this.lastX = n.x, this.lastY = n.y,
           void(this.lastZ = n.z))

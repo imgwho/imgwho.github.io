@@ -33,7 +33,7 @@
     }
 
     .bigImage {
-      background-image: url(https://ae01.alicdn.com/kf/HTB1_GtLUMTqK1RjSZPhq6xfOFXaH.jpg);
+      /* background-image: url(https://ae01.alicdn.com/kf/HTB1_GtLUMTqK1RjSZPhq6xfOFXaH.jpg); */
       width: 100%;
       height: 100%;
       -webkit-background-size: cover;
@@ -111,14 +111,39 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-V6GN1QB9M3"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag() { dataLayer.push(arguments); }
   gtag('js', new Date());
 
   gtag('config', 'G-V6GN1QB9M3');
 </script>
 
+<script language="JavaScript">
+  var randnum = Math.random();
+  var inum = 6;
+  var rand1 = Math.round(randnum * (inum - 1)) + 1;
+  images = new Array;
+  images[1] = "1";
+  images[2] = "2";
+  images[3] = "3";
+  images[4] = "4";
+  images[5] = "5";
+  images[6] = "6";
+
+  var image = '/' + images[rand1];
+
+  if ((screen.width < 480) || (screen.height < 480)) {
+    image += '_vert';
+  }
+
+  image += '.jpg';
+
+</script>
+
 <body>
   <main class="bigImage">
+    <script language="JavaScript">
+      document.write('<div class="bigImage" style="background-image: url(' + image + ');">')
+    </script>
     <div class="container">
       <div class="content">
         <p class="name">imgwho</p>

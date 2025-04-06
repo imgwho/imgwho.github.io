@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业级数据共享中心 | Headless BI on Tableau Server</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2c7be5;
+      --secondary-color: #12263f;
+      --accent-color: #00d97e;
+      --light-color: #f9fbfd;
+      --dark-color: #12263f;
+      --text-color: #3e4b5b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      color: var(--text-color);
+      line-height: 1.6;
+      background-color: var(--light-color);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    header {
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 20px 0;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .logo span {
+      color: var(--accent-color);
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+
+    nav ul li {
+      margin-left: 30px;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: var(--accent-color);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+      color: white;
+      padding: 160px 0 100px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 20px;
+      max-width: 800px;
+      margin: 0 auto 40px;
+      opacity: 0.9;
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: var(--accent-color);
+      color: white;
+      padding: 12px 30px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 2px solid white;
+      margin-left: 15px;
+    }
+
+    .features {
+      padding: 100px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-title h2 {
+      font-size: 36px;
+      color: var(--secondary-color);
+      margin-bottom: 15px;
+    }
+
+    .section-title p {
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto;
+      color: #6c757d;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .feature-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-icon {
+      font-size: 40px;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 22px;
+      margin-bottom: 15px;
+      color: var(--secondary-color);
+    }
+
+    .product-showcase {
+      padding: 100px 0;
+      background-color: #f5f7fa;
+    }
+
+    .product-demo {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 50px;
+    }
+
+    .product-image {
+      flex: 1;
+      min-width: 300px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .product-info {
+      flex: 1;
+      min-width: 300px;
+      padding: 30px;
+    }
+
+    .product-info h3 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: var(--secondary-color);
+    }
+
+    .product-info ul {
+      list-style: none;
+      margin-bottom: 30px;
+    }
+
+    .product-info ul li {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .product-info ul li:before {
+      content: "✓";
+      color: var(--accent-color);
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    .pricing {
+      padding: 100px 0;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 50px;
+    }
+
+    .pricing-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 40px 30px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pricing-card.featured {
+      transform: scale(1.05);
+      border: 2px solid var(--accent-color);
+    }
+
+    .pricing-card.featured:before {
+      content: "推荐";
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: var(--accent-color);
+      color: white;
+      padding: 5px 15px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .pricing-card.featured:hover {
+      transform: scale(1.05) translateY(-10px);
+    }
+
+    .pricing-card h3 {
+      font-size: 24px;
+      color: var(--secondary-color);
+      margin-bottom: 15px;
+    }
+
+    .pricing-card .price {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+
+    .pricing-card .price span {
+      font-size: 16px;
+      font-weight: 400;
+      color: #6c757d;
+    }
+
+    .pricing-card ul {
+      list-style: none;
+      margin-bottom: 30px;
+      text-align: left;
+    }
+
+    .pricing-card ul li {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .pricing-card ul li:before {
+      content: "✓";
+      color: var(--accent-color);
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    .testimonials {
+      padding: 100px 0;
+      background-color: #f5f7fa;
+    }
+
+    .testimonial-slider {
+      margin-top: 50px;
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 30px;
+    }
+
+    .testimonial-slider::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .testimonial-slider::-webkit-scrollbar-thumb {
+      background-color: var(--primary-color);
+      border-radius: 4px;
+    }
+
+    .testimonial-card {
+      flex: 0 0 auto;
+      width: 350px;
+      margin-right: 30px;
+      background-color: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      scroll-snap-align: start;
+    }
+
+    .testimonial-text {
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+    }
+
+    .testimonial-author img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-right: 15px;
+    }
+
+    .author-info h4 {
+      font-size: 18px;
+      margin-bottom: 5px;
+      color: var(--secondary-color);
+    }
+
+    .author-info p {
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    .cta {
+      padding: 100px 0;
+      text-align: center;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+    }
+
+    .cta h2 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    .cta p {
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto 40px;
+      opacity: 0.9;
+    }
+
+    .contact-form {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+    }
+
+    .form-row {
+      display: flex;
+      margin-bottom: 20px;
+      gap: 20px;
+    }
+
+    .form-group {
+      flex: 1;
+      position: relative;
+    }
+
+    .form-group.full-width {
+      width: 100%;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 16px;
+      color: var(--dark-color);
+      transition: all 0.3s;
+    }
+
+    .form-group select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232c7be5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 20px;
+      padding-right: 45px;
+    }
+
+    .form-group textarea {
+      height: 120px;
+      resize: none;
+      border-radius: 20px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--accent-color);
+      background: white;
+    }
+
+    .btn-cta {
+      background-color: var(--accent-color);
+      color: white;
+      padding: 15px 40px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 10px auto 0;
+      display: block;
+      width: auto;
+    }
+
+    .btn-cta:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      background-color: #00c06f;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .contact-form {
+        padding: 30px 20px;
+      }
+
+      .cta h2 {
+        font-size: 28px;
+      }
+    }
+
+
+    footer {
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 60px 0 30px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .footer-column h3 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--accent-color);
+    }
+
+    .footer-column ul {
+      list-style: none;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-column ul li a {
+      color: #a1a8c3;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-column ul li a:hover {
+      color: white;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .footer-bottom p {
+      color: #a1a8c3;
+      font-size: 14px;
+    }
+
+    .contact-form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    .form-group textarea {
+      height: 150px;
+      resize: vertical;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      .hero p {
+        font-size: 18px;
+      }
+
+      .section-title h2 {
+        font-size: 30px;
+      }
+
+      .product-demo {
+        flex-direction: column;
+      }
+
+      .product-image,
+      .product-info {
+        min-width: 100%;
+      }
+
+      nav ul {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container header-content">
+      <div class="logo">Tableau HBI <span>企业级</span> 门户</div>
+      <nav>
+        <ul>
+          <li><a href="#features">功能</a></li>
+          <li><a href="#showcase">产品展示</a></li>
+          <li><a href="#pricing">价格方案</a></li>
+          <li><a href="#testimonials">客户评价</a></li>
+          <li><a href="#contact">联系我们</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>企业级数据共享中心</h1>
+      <p>基于Tableau Server的Headless BI解决方案，让数据分析触手可及，助力企业数字化转型</p>
+      <a href="#contact" class="btn">免费演示</a>
+      <a href="#pricing" class="btn btn-outline">查看价格</a>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-title">
+        <h2>强大功能，简单易用</h2>
+        <p>我们的企业级数据共享中心为您提供全方位的数据分析与展示解决方案</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>原生Tableau体验</h3>
+          <p>保留Tableau的所有卓越功能，无缝集成到您的企业系统中，提升数据分析生产力。</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>精细权限控制</h3>
+          <p>支持部门、岗位和角色控制，以及仪表板的行级别权限控制，确保数据安全。</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>轻松扩展</h3>
+          <p>实现分析和呈现的前后端分离，轻松构建企业级数据分析平台，满足不断增长的需求。</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>多种嵌入方式</h3>
+          <p>支持多种嵌入方式，轻松集成到您现有的企业系统和应用中，提供一致的用户体验。</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3>独立用户管理</h3>
+          <p>提供独立的用户管理系统，支持单点登录，简化用户权限管理流程。</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3>无限可能</h3>
+          <p>集成Tableau仪表板、Public案例和其他BI作品，简化运维成本，释放数据价值。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="product-showcase" id="showcase">
+    <div class="container">
+      <div class="section-title">
+        <h2>产品展示</h2>
+        <p>直观体验我们的企业级数据共享中心如何改变您的数据分析方式</p>
+      </div>
+
+      <div class="product-demo">
+        <div class="product-image">
+          <img src="https://picsum.photos/600/400" alt="数据共享中心演示">
+        </div>
+
+        <div class="product-info">
+          <h3>最新技术，卓越体验</h3>
+          <ul>
+            <li>采用Tableau API 3.0嵌入技术，提供原生体验</li>
+            <li>支持多租户架构，满足大型企业需求</li>
+            <li>提供单点登录功能，简化用户访问</li>
+            <li>支持RSL行级别权限控制，确保数据安全</li>
+            <li>由Tableau Visionary专家团队开发，确保专业品质</li>
+          </ul>
+          <a href="#contact" class="btn">预约演示</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="section-title">
+        <h2>灵活的价格方案</h2>
+        <p>选择最适合您企业需求的方案，开启数据驱动之旅</p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>基础版</h3>
+          <div class="price">¥39,800<span>/年</span></div>
+          <ul>
+            <li>支持50个并发用户</li>
+            <li>基础权限控制</li>
+            <li>标准技术支持</li>
+            <li>季度更新</li>
+            <li>基础用户管理</li>
+          </ul>
+          <a href="#contact" class="btn">联系我们</a>
+        </div>
+
+        <div class="pricing-card featured">
+          <h3>企业版</h3>
+          <div class="price">¥89,800<span>/年</span></div>
+          <ul>
+            <li>支持200个并发用户</li>
+            <li>高级权限控制</li>
+            <li>优先技术支持</li>
+            <li>月度更新</li>
+            <li>高级用户管理</li>
+            <li>单点登录集成</li>
+            <li>定制化开发支持</li>
+          </ul>
+          <a href="#contact" class="btn">联系我们</a>
+        </div>
+
+        <div class="pricing-card">
+          <h3>定制版</h3>
+          <div class="price">联系咨询<span></span></div>
+          <ul>
+            <li>无限并发用户</li>
+            <li>全面权限控制</li>
+            <li>专属技术支持</li>
+            <li>实时更新</li>
+            <li>企业级用户管理</li>
+            <li>全面系统集成</li>
+            <li>专属定制开发</li>
+            <li>专家咨询服务</li>
+          </ul>
+          <a href="#contact" class="btn">联系我们</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="section-title">
+        <h2>客户评价</h2>
+        <p>听听我们的客户如何评价企业级数据共享中心</p>
+      </div>
+
+      <div class="testimonial-slider">
+        <div class="testimonial-card">
+          <div class="testimonial-text">
+            "企业级数据共享中心彻底改变了我们的数据分析方式。现在，我们的业务团队可以随时访问关键数据，做出更明智的决策。"
+          </div>
+          <div class="testimonial-author">
+            <img src="https://picsum.photos/50/50" alt="张总监">
+            <div class="author-info">
+              <h4>张总监</h4>
+              <p>某大型制造企业</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-text">
+            "权限控制功能非常强大，我们可以精确控制每个部门和角色能够看到的数据，同时保持Tableau的原生体验。"
+          </div>
+          <div class="testimonial-author">
+            <img src="https://picsum.photos/50/50" alt="李经理">
+            <div class="author-info">
+              <h4>李经理</h4>
+              <p>某金融服务公司</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-text">
+            "实施后，我们的数据分析效率提高了200%，用户采用率显著提升，投资回报率超出预期。"
+          </div>
+          <div class="testimonial-author">
+            <img src="https://picsum.photos/50/50" alt="王CIO">
+            <div class="author-info">
+              <h4>王CIO</h4>
+              <p>某零售连锁企业</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-text">
+            "技术支持团队非常专业，从实施到后续维护，全程提供优质服务，解决问题迅速高效。"
+          </div>
+          <div class="testimonial-author">
+            <img src="https://picsum.photos/50/50" alt="赵数据总监">
+            <div class="author-info">
+              <h4>赵数据总监</h4>
+              <p>某互联网公司</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="contact">
+    <div class="container">
+      <h2>开启您的数据驱动之旅</h2>
+      <p>联系我们，获取免费演示和专业咨询</p>
+
+      <div class="contact-form">
+        <form action="#" method="POST">
+          <div class="form-row">
+            <div class="form-group">
+              <input type="text" id="name" name="name" placeholder="您的姓名" required>
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="company" name="company" placeholder="公司名称" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <input type="email" id="email" name="email" placeholder="电子邮箱" required>
+            </div>
+
+            <div class="form-group">
+              <input type="tel" id="phone" name="phone" placeholder="联系电话" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <select id="interest" name="interest">
+                <option value="" disabled selected>您对哪个方案感兴趣？</option>
+                <option value="basic">基础版</option>
+                <option value="enterprise">企业版</option>
+                <option value="custom">定制版</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <textarea id="message" name="message" placeholder="请简要描述您的需求..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <button type="submit" class="btn btn-cta">立即获取演示</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>关于我们</h3>
+          <ul>
+            <li><a href="#">公司简介</a></li>
+            <li><a href="#">团队介绍</a></li>
+            <li><a href="#">发展历程</a></li>
+            <li><a href="#">合作伙伴</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h3>产品</h3>
+          <ul>
+            <li><a href="#">企业级数据共享中心</a></li>
+            <li><a href="#">数据分析平台</a></li>
+            <li><a href="#">定制开发服务</a></li>
+            <li><a href="#">培训与咨询</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h3>资源</h3>
+          <ul>
+            <li><a href="#">技术博客</a></li>
+            <li><a href="#">案例研究</a></li>
+            <li><a href="#">白皮书</a></li>
+            <li><a href="#">视频教程</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h3>联系我们</h3>
+          <ul>
+            <li><a href="#">电话：400-123-4567</a></li>
+            <li><a href="#">邮箱：info@datashare.com</a></li>
+            <li><a href="#">地址：北京市朝阳区科技园区</a></li>
+            <li><a href="#">微信：DataShareBI</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2025 企业级数据共享中心. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+
+    // 表单提交
+    document.querySelector('form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      alert('感谢您的提交！我们的团队将尽快与您联系。');
+      this.reset();
+    });
+  </script>
+</body>
+
+</html>

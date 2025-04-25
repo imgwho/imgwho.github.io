@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mist Echo - Music Emotion Visualizer</title>
+    <style>
+        :root {
+            /* Inspired Gradient Colors (Dark Teal to Deep Indigo/Purple) */
+            --bg-gradient-start: #0f303e;
+            --bg-gradient-end: #1a1a2e;
+            --text-primary: rgba(255, 255, 255, 0.85);
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --button-bg: rgba(255, 255, 255, 0.08);
+            --button-hover-bg: rgba(255, 255, 255, 0.15);
+            --mist-blur: 55px; /* Blur level for particles */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            /* Apply the gradient background */
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            width: 100vw; /* Ensure full viewport width */
+            overflow: hidden; /* Critical for immersion */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center content vertically */
+            position: relative; /* For absolute positioning of children */
+            text-align: center; /* Center text by default */
+        }
+
+        /* Main content container for centering */
+        #app-container {
+            position: relative; /* Allows z-index stacking if needed */
+            z-index: 10; /* Above the visualization */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem; /* Some padding around content */
+        }
+
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem); /* Responsive font size */
+            font-weight: 600; /* Slightly bolder for title */
+            letter-spacing: 2px;
+            margin: 0 0 0.5rem 0; /* Reduced margin */
+            color: #fff; /* Pure white for title */
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #subtitle {
+            font-size: clamp(0.9rem, 3vw, 1.2rem); /* Responsive */
+            font-weight: 300;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            margin: 0 0 2.5rem 0; /* Space before controls */
+        }
+
+        /* Controls area */
+        #controls {
+            background: none; /* No background */
+            padding: 0; /* No extra padding */
+            border-radius: 0;
+            display: flex;
+            gap: 20px; /* Space between buttons */
+            align-items: center;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        /* Styling the label as a button */
+        label[for="audioFile"] {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: var(--button-bg);
+            color: var(--text-primary);
+            border-radius: 8px; /* Slightly rounded corners */
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 400;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+        }
+        label[for="audioFile"]:hover {
+            background-color: var(--button-hover-bg);
+            transform: scale(1.03); /* Slight grow effect */
+        }
+        label[for="audioFile"]:active {
+             transform: scale(0.98); /* Slight shrink effect */
+        }
+
+
+        /* Hide the actual file input */
+        #audioFile {
+            display: none;
+        }
+
+        /* Play/Stop button */
+        button {
+            font-family: inherit;
+            font-weight: 400;
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: var(--button-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            font-size: 0.95em;
+            white-space: nowrap;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: var(--button-hover-bg);
+            transform: scale(1.03);
+        }
+         button:active:not(:disabled) {
+             transform: scale(0.98);
+         }
+
+        button:disabled {
+            background-color: rgba(85, 85, 85, 0.2);
+            color: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+            opacity: 0.7;
+            border-color: rgba(255, 255, 255, 0.05);
+            transform: none;
+        }
+
+        /* Visualization layer - covers the entire background */
+        #visualization {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: none;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            z-index: 1; /* Behind the main content/controls */
+        }
+
+        /* Mist particle styling */
+        .mist-particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0;
+            filter: blur(var(--mist-blur));
+            /* Screen blend mode works well on dark gradients for additive color */
+            mix-blend-mode: screen;
+            transition: background-color 3s cubic-bezier(0.25, 1, 0.5, 1),
+                        transform 12s linear,
+                        opacity 2.5s ease-in-out;
+            will-change: transform, opacity, background-color;
+        }
+
+        /* Emotion text - minimal, at the bottom */
+        #emotion-display {
+            position: absolute;
+            bottom: 2.5vh; /* Position near bottom */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Precise centering */
+            font-size: 0.8em;
+            font-weight: 300;
+            color: var(--text-secondary);
+            z-index: 100;
+            background: none;
+            padding: 5px 10px; /* Slight padding for readability */
+            border-radius: 4px;
+            text-align: center;
+            letter-spacing: 0.5px;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.6s ease;
+            pointer-events: none;
+            white-space: nowrap; /* Prevent wrapping */
+        }
+
+        /* Show emotion text based on body class */
+        body.playing #emotion-display,
+        body.analyzing #emotion-display,
+        body.stopped #emotion-display,
+        body.decoded #emotion-display { /* Added decoded state */
+            opacity: 1;
+        }
+
+        /* Hide the actual audio player */
+        #audioPlayer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <h1>Mist Echo</h1>
+        <p id="subtitle">Music Emotion Visualizer</p>
+
+        <div id="controls">
+            <!-- Use label styled as button for file input -->
+            <label for="audioFile">Load Music</label>
+            <input type="file" id="audioFile" accept="audio/*">
+
+            <!-- Play/Stop button -->
+            <button id="playButton" disabled>Play</button>
+        </div>
+    </div>
+
+    <!-- Visualization sits behind the content -->
+    <div id="visualization"></div>
+
+    <!-- Emotion display text -->
+    <div id="emotion-display">Loading...</div>
+
+    <!-- Hidden audio element -->
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        // --- DOM Elements ---
+        const audioFile = document.getElementById('audioFile');
+        const playButton = document.getElementById('playButton');
+        const visualizationContainer = document.getElementById('visualization');
+        const emotionDisplay = document.getElementById('emotion-display');
+        const appContainer = document.getElementById('app-container'); // Get container
+
+        // --- State Variables ---
+        let audioContext;
+        let analyser;
+        let audioBuffer;
+        let bufferSource; // Active playback source
+        let particles = [];
+        const numParticles = 35; // Slightly more particles for denser feel
+        let animationFrameId;
+        let baseEmotion = { valence: 0.5, arousal: 0.5 };
+        let currentSimulatedEmotion = { ...baseEmotion };
+        let isPlaying = false;
+        let dataArray;
+        let isAudioContextReady = false;
+        let isDecoding = false;
+
+        // --- Body Class Management ---
+        function setBodyClass(state) {
+             document.body.classList.remove('playing', 'stopped', 'analyzing', 'decoding', 'decoded');
+             if (state) {
+                 document.body.classList.add(state);
+             }
+        }
+
+        // --- Event Listener: File Selection ---
+        audioFile.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                // Reset state
+                baseEmotion = { valence: 0.5, arousal: 0.5 };
+                currentSimulatedEmotion = { ...baseEmotion };
+                isAudioContextReady = false; // Requires re-setup if context was closed
+                audioBuffer = null;
+                 if (bufferSource) { try { bufferSource.stop(); bufferSource.disconnect(); } catch(e){} bufferSource = null; }
+                 if (isPlaying) stopVisualizationAndAudio();
+
+                setBodyClass('decoding');
+                emotionDisplay.textContent = 'Decoding Audio...';
+                playButton.disabled = true;
+                isDecoding = true;
+
+                try {
+                    await decodeAudioFile(file);
+                    setBodyClass('decoded');
+                    emotionDisplay.textContent = 'Ready to Play';
+                    playButton.disabled = false;
+                } catch (err) {
+                    console.error("Audio decoding failed:", err);
+                    setBodyClass(null); // Clear state class
+                    emotionDisplay.textContent = `Decoding Failed: ${err.message}`;
+                    playButton.disabled = true;
+                    audioBuffer = null;
+                } finally {
+                    isDecoding = false;
+                }
+                resetVisualization(); // Clear old particles
+            }
+        });
+
+        // --- Decode Audio File ---
+        async function decodeAudioFile(file) {
+            // Ensure AudioContext exists and is running/resumed
+             if (!audioContext || audioContext.state === 'closed') {
+                 try {
+                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                     console.log("AudioContext created/reused for decoding.");
+                 } catch (e) { throw new Error(`Failed to create AudioContext: ${e.message}`); }
+             }
+             // Resume if suspended (important!)
+             if (audioContext.state === 'suspended') {
+                 try {
+                     await audioContext.resume();
+                     console.log("AudioContext resumed for decoding.");
+                 } catch(e) {
+                     console.warn("Context resume failed during decode setup:", e);
+                     // Might still work if decodeAudioData triggers resume, but good to note.
+                 }
+             }
+
+             const arrayBuffer = await file.arrayBuffer();
+             console.log("File read into ArrayBuffer.");
+             try {
+                 audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                 console.log(`Audio decoded! Duration: ${audioBuffer.duration.toFixed(2)}s`);
+             } catch (decodeError) {
+                 console.error("decodeAudioData failed:", decodeError);
+                 throw new Error(`Cannot decode audio: ${decodeError.message}. Unsupported format?`);
+             }
+        }
+
+        // --- Play Button Click Handler ---
+        playButton.addEventListener('click', async () => {
+            if (isDecoding || !audioBuffer) {
+                alert('Please wait for decoding or select a valid file.');
+                return;
+            }
+
+            if (!isPlaying) {
+                // 1. Ensure AudioContext is ready and running
+                try {
+                    if (!isAudioContextReady) {
+                        await setupAudioAnalysis(); // Setup analyser, check context state
+                        console.log("AudioContext and Analyser ready.");
+                        isAudioContextReady = true;
+                    } else if (audioContext.state !== 'running') {
+                        console.log("Context not running, attempting resume...");
+                        await audioContext.resume();
+                        if (audioContext.state !== 'running') throw new Error('Resume failed.');
+                        console.log("Context resumed successfully.");
+                    }
+                } catch (err) {
+                    console.error("Setup/Resume failed:", err);
+                    alert(`Failed to initialize audio analyzer: ${err.message}.`);
+                    setBodyClass(null);
+                    return;
+                }
+
+                // 2. Analyze for base emotion
+                setBodyClass('analyzing');
+                emotionDisplay.textContent = 'Analyzing...';
+                let analysisSuccess = false;
+                let analysisSource = null;
+                try {
+                    analysisSource = audioContext.createBufferSource();
+                    analysisSource.buffer = audioBuffer;
+                    analysisSource.connect(analyser);
+                    analysisSource.start(0);
+                    console.log("Temp source started for analysis.");
+                    await new Promise(resolve => setTimeout(resolve, 180)); // Slightly longer delay
+                    analysisSuccess = await setBaseEmotionFromAudio();
+                } catch (err) {
+                    console.error("Error during analysis phase:", err);
+                } finally {
+                    if (analysisSource) { // Cleanup temp source
+                        try { analysisSource.stop(0); analysisSource.disconnect(); } catch (e) {}
+                        analysisSource = null;
+                        console.log("Temp source stopped.");
+                    }
+                }
+
+                // 3. Start playback and visualization
+                if (analysisSuccess) {
+                    console.log("Analysis successful.");
+                    emotionDisplay.textContent = `Base: V:${baseEmotion.valence.toFixed(2)} A:${baseEmotion.arousal.toFixed(2)}`; // Initial display
+                } else {
+                    console.warn("Analysis failed, using default emotion.");
+                    emotionDisplay.textContent = 'Analysis Failed - Using Default';
+                    baseEmotion = { valence: 0.5, arousal: 0.5 }; // Fallback
+                    currentSimulatedEmotion = { ...baseEmotion };
+                }
+                // Short delay before starting playback to show analysis result
+                await new Promise(resolve => setTimeout(resolve, 500));
+                startVisualizationAndAudio();
+
+            } else {
+                stopVisualizationAndAudio();
+            }
+        });
+
+        // --- Setup Audio Context and Analyser ---
+        async function setupAudioAnalysis() {
+            if (!audioContext || audioContext.state === 'closed') {
+                throw new Error("AudioContext missing or closed.");
+            }
+            if (audioContext.state !== 'running') {
+                 throw new Error(`AudioContext not running (state: ${audioContext.state}).`);
+            }
+            if (!analyser) {
+                try {
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256; // Keep FFT size reasonable
+                    analyser.smoothingTimeConstant = 0.75; // Add some smoothing
+                    const bufferLength = analyser.frequencyBinCount;
+                    dataArray = new Uint8Array(bufferLength);
+                    console.log("Analyser node created.");
+                } catch (e) { throw new Error(`Failed to create Analyser: ${e.message}`); }
+            }
+            isAudioContextReady = true;
+        }
+
+       // --- Analyze Audio for Base Emotion ---
+        async function setBaseEmotionFromAudio() {
+            if (!isAudioContextReady || !analyser || !dataArray || audioContext.state !== 'running') {
+                console.warn("Analysis pre-check failed. State:", audioContext ? audioContext.state : 'N/A');
+                return false;
+            }
+            const numSamples = 12; const sampleDelay = 75; // Tweak sampling params
+            let totalEnergy = 0; let totalBrightness = 0; let samplesTaken = 0;
+            console.log("Starting audio sampling...");
+
+            for (let i = 0; i < numSamples; i++) {
+                analyser.getByteFrequencyData(dataArray);
+                let currentEnergy = 0; let currentWeightedFreqSum = 0; let currentFreqWeightSum = 0; let nonZeroValues = 0;
+                for (let j = 0; j < dataArray.length; j++) {
+                    const value = dataArray[j];
+                    if (value > 2) { // Slightly higher threshold
+                        nonZeroValues++; currentEnergy += value;
+                        currentWeightedFreqSum += value * j; currentFreqWeightSum += value;
+                    }
+                }
+                // console.log(`Sample ${i+1}: Non-zero(>2)=${nonZeroValues}, EnergySum=${currentEnergy}`); // Reduce console noise slightly
+
+                if (nonZeroValues > dataArray.length * 0.03 && currentFreqWeightSum > 0) { // Need at least ~3% bins active
+                    totalEnergy += currentEnergy / dataArray.length;
+                    totalBrightness += currentWeightedFreqSum / currentFreqWeightSum;
+                    samplesTaken++;
+                }
+                if (i < numSamples - 1) await new Promise(resolve => setTimeout(resolve, sampleDelay));
+            }
+            console.log(`Sampling complete. Valid samples: ${samplesTaken}`);
+
+            if (samplesTaken >= 3) { // Need at least 3 good samples
+                const avgEnergy = totalEnergy / samplesTaken;
+                const avgBrightnessIndex = totalBrightness / samplesTaken;
+                console.log(`Final Calc: Avg Energy=${avgEnergy.toFixed(2)}, Avg Brightness Index=${avgBrightnessIndex.toFixed(2)}`);
+                // Remap based on observation (might need adjustment)
+                baseEmotion.arousal = Math.min(1, Math.max(0, avgEnergy / 90)); // Adjust divisor based on typical energy levels
+                const brightnessRatio = avgBrightnessIndex / (dataArray.length * 0.7); // Adjust brightness scaling
+                baseEmotion.valence = Math.min(1, Math.max(0, brightnessRatio * 0.7 + 0.2)); // Adjust valence mapping
+                console.log(`Setting base emotion: V=${baseEmotion.valence.toFixed(2)}, A=${baseEmotion.arousal.toFixed(2)}`);
+                currentSimulatedEmotion = { ...baseEmotion };
+                return true;
+            } else {
+                console.warn("Not enough valid samples.");
+                return false;
+            }
+        }
+
+        // --- Start Visualization and Playback ---
+        function startVisualizationAndAudio() {
+            if (isPlaying || !audioBuffer || !audioContext || audioContext.state !== 'running') {
+                console.error("Pre-start check failed:", {isPlaying, audioBuffer, audioContext});
+                setBodyClass('stopped'); // Revert state if start fails
+                return;
+            }
+            isPlaying = true;
+            playButton.textContent = 'Stop';
+            setBodyClass('playing');
+            // currentSimulatedEmotion is set based on analysis result or default
+
+            createParticles(); // Create visual elements
+
+            // Create and start the main playback source
+            if (bufferSource) { try { bufferSource.stop(); bufferSource.disconnect(); } catch(e){} }
+            bufferSource = audioContext.createBufferSource();
+            bufferSource.buffer = audioBuffer;
+            bufferSource.connect(analyser);
+            analyser.connect(audioContext.destination); // Connect to output
+
+            bufferSource.onended = () => {
+                if (isPlaying) { // Only trigger stop if playback wasn't manually stopped
+                    console.log("Playback ended naturally.");
+                    stopVisualizationAndAudio();
+                }
+            };
+
+            try {
+                bufferSource.start(0);
+                console.log("Main BufferSource started for playback.");
+            } catch (e) {
+                console.error("Failed to start main BufferSource:", e);
+                alert("Failed to start audio playback!");
+                stopVisualizationAndAudio();
+                return;
+            }
+
+            lastEmotionUpdateTime = Date.now();
+            time = 0;
+            animate(); // Start animation loop
+        }
+
+        // --- Stop Visualization and Playback ---
+        function stopVisualizationAndAudio() {
+            if (!isPlaying) return;
+            isPlaying = false;
+            playButton.textContent = 'Play';
+            setBodyClass('stopped');
+            emotionDisplay.textContent = 'Stopped';
+
+            if (bufferSource) {
+                 try {
+                     bufferSource.onended = null; // Remove listener
+                     bufferSource.stop(0);
+                     bufferSource.disconnect();
+                     console.log("BufferSource stopped by user.");
+                 } catch (e) { console.warn("Error stopping BufferSource:", e); }
+                 bufferSource = null;
+            }
+
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            // Fade out particles instead of immediate removal
+            particles.forEach(p => p.style.opacity = 0);
+            // Delay reset to allow fade out
+            setTimeout(() => {
+                 // Only reset if still stopped (user didn't quickly restart)
+                 if (!isPlaying) {
+                      resetVisualization();
+                      // Set text based on whether buffer exists
+                      emotionDisplay.textContent = audioBuffer ? 'Ready to Play' : 'Load Music';
+                      setBodyClass(audioBuffer ? 'decoded' : null);
+                 }
+            }, 2500); // Match opacity transition time
+
+            // Don't reset emotionDisplay text here, let the timeout handle it
+        }
+
+        // --- Reset Visualization (Clear Particles) ---
+        function resetVisualization() {
+            visualizationContainer.innerHTML = '';
+            particles = [];
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            // Text is updated by calling functions
+        }
+
+        // --- Create Particles (Adapted for Fullscreen) ---
+        function createParticles() {
+            visualizationContainer.innerHTML = ''; particles = [];
+            const containerWidth = window.innerWidth;
+            const containerHeight = window.innerHeight;
+
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('mist-particle');
+                const minDim = Math.min(containerWidth, containerHeight);
+                const size = Math.random() * (minDim * 0.6) + (minDim * 0.35); // Adjusted size
+                particle.style.width = `${size}px`; particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * containerWidth - size / 2}px`;
+                particle.style.top = `${Math.random() * containerHeight - size / 2}px`;
+                particle.dataset.baseX = parseFloat(particle.style.left); particle.dataset.baseY = parseFloat(particle.style.top);
+                particle.dataset.driftX = (Math.random() - 0.5) * 0.15; // Slower drift
+                particle.dataset.driftY = (Math.random() - 0.5) * 0.15;
+                particle.dataset.phase = Math.random() * Math.PI * 2;
+                visualizationContainer.appendChild(particle); particles.push(particle);
+                 setTimeout(() => { if (isPlaying) particle.style.opacity = Math.random() * 0.18 + 0.05; }, Math.random() * 2000); // Slower fade in
+            }
+        }
+
+        // --- Simulate Emotion Fluctuation ---
+        function simulateEmotion() {
+            const driftAmount = 0.008; // Slower fluctuation
+            currentSimulatedEmotion.valence += (Math.random() - 0.5) * driftAmount * 2;
+            currentSimulatedEmotion.arousal += (Math.random() - 0.5) * driftAmount * 2;
+            const pullFactor = 0.005; // Weaker pull back to base
+            currentSimulatedEmotion.valence += (baseEmotion.valence - currentSimulatedEmotion.valence) * pullFactor;
+            currentSimulatedEmotion.arousal += (baseEmotion.arousal - currentSimulatedEmotion.arousal) * pullFactor;
+            currentSimulatedEmotion.valence = Math.max(0, Math.min(1, currentSimulatedEmotion.valence));
+            currentSimulatedEmotion.arousal = Math.max(0, Math.min(1, currentSimulatedEmotion.arousal));
+        }
+
+        // --- Map Emotion to Color (HSL) ---
+        function mapEmotionToColor(v, a) {
+            const hue = 240 - (v * 240);
+            const saturation = 55 + a * 45; // Adjusted saturation range
+            const lightness = 45 + a * 25;  // Adjusted lightness range
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
+
+        // --- Animation Loop ---
+        let lastEmotionUpdateTime = 0; const emotionUpdateInterval = 600; // Slower update
+        let time = 0;
+        function animate(timestamp) {
+            if (!isPlaying) return;
+            const now = Date.now();
+            if (now - lastEmotionUpdateTime > emotionUpdateInterval) {
+                simulateEmotion();
+                lastEmotionUpdateTime = now;
+                // Update emotion display text during playback
+                const bV = baseEmotion.valence.toFixed(2); const bA = baseEmotion.arousal.toFixed(2);
+                const cV = currentSimulatedEmotion.valence.toFixed(2); const cA = currentSimulatedEmotion.arousal.toFixed(2);
+                emotionDisplay.textContent = `V:${cV} A:${cA} (Base V:${bV} A:${bA})`;
+            }
+
+            const containerWidth = window.innerWidth; const containerHeight = window.innerHeight;
+            time += 0.003; // Slower time progression
+
+            particles.forEach(particle => {
+                // Update color with slight random variation
+                const pV = Math.max(0,Math.min(1,currentSimulatedEmotion.valence+(Math.random()-0.5)*0.05));
+                const pA = Math.max(0,Math.min(1,currentSimulatedEmotion.arousal+(Math.random()-0.5)*0.05));
+                particle.style.backgroundColor = mapEmotionToColor(pV, pA);
+
+                // Update position (slow drift + arousal-based movement)
+                let cX = parseFloat(particle.dataset.baseX); let cY = parseFloat(particle.dataset.baseY);
+                const dX = parseFloat(particle.dataset.driftX); const dY = parseFloat(particle.dataset.driftY); const ph = parseFloat(particle.dataset.phase);
+                cX += dX; cY += dY;
+                const movementScale = containerWidth * 0.05 * currentSimulatedEmotion.arousal; // Reduced movement scale
+                cX += Math.sin(time + ph) * movementScale * 0.5;
+                cY += Math.cos(time + ph * 1.2) * movementScale * 0.5;
+                const sz = particle.offsetWidth;
+                // Boundary wrapping (teleport to other side)
+                if(cX > containerWidth + sz / 2) cX = -sz / 2; if(cX < -sz / 2) cX = containerWidth + sz / 2;
+                if(cY > containerHeight + sz / 2) cY = -sz / 2; if(cY < -sz / 2) cY = containerHeight + sz / 2;
+                particle.dataset.baseX = cX; particle.dataset.baseY = cY;
+                particle.style.transform = `translate(${cX}px, ${cY}px)`;
+
+                // Randomly adjust opacity slightly for shimmering effect (low probability)
+                if (Math.random() < 0.005) {
+                   particle.style.opacity = Math.random() * 0.18 + 0.05;
+                }
+            });
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+    </script>
+
+</body>
+</html>

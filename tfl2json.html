@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TFL 文件处理器 (Web版)</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <style>
+        /* CSS 样式部分 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        #app-container {
+            width: 90%;
+            max-width: 600px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2rem 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        #drop-zone {
+            border: 3px dashed #d9d9d9;
+            border-radius: 8px;
+            padding: 50px 20px;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        #drop-zone.drag-over {
+            border-color: #1890ff;
+            background-color: #e6f7ff;
+        }
+        
+        #drop-zone p {
+            margin: 0;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        #status {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #555;
+            min-height: 20px;
+        }
+        
+        #download-links-container {
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .download-link {
+            display: block;
+            margin: 8px 0;
+            padding: 10px 15px;
+            background-color: #f0f8ff;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #0056b3;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .download-link:hover {
+            background-color: #d9eaff;
+        }
+        
+        .download-link::before {
+            content: '📄 ';
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <h1>TFL 文件处理器 (Web版)</h1>
+        <div id="drop-zone">
+            <p>将一个或多个 .tfl 文件拖到这里<br>或点击此区域选择文件</p>
+            <input type="file" id="file-input" accept=".tfl" multiple>
+        </div>
+        <div id="status">状态：等待文件...</div>
+        <div id="download-links-container"></div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const statusDiv = document.getElementById('status');
+        const downloadLinksContainer = document.getElementById('download-links-container');
+
+        // --- 事件监听 ---
+
+        // 点击拖放区触发文件选择框
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // 文件选择框选择文件
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        // 拖动文件进入区域
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault(); // 必须阻止默认事件，才能触发 drop
+            dropZone.classList.add('drag-over');
+        });
+
+        // 拖动文件离开区域
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        });
+
+        // 在区域内释放文件
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // --- 核心处理逻辑 ---
+
+        function handleFiles(files) {
+            if (files.length === 0) {
+                updateStatus("未选择任何文件。", "info");
+                return;
+            }
+            // 开始处理前清空旧内容
+            downloadLinksContainer.innerHTML = '';
+            updateStatus(`收到 ${files.length} 个文件，正在处理...`, "info");
+            
+            // 使用 Promise.all 来等待所有文件处理完成
+            const processingPromises = Array.from(files).map(processFile);
+            
+            Promise.all(processingPromises).then(() => {
+                updateStatus(`所有任务处理完毕！`, "success");
+            });
+        }
+
+        function processFile(file) {
+            return new Promise((resolve) => {
+                if (!file.name.toLowerCase().endsWith('.tfl')) {
+                    console.warn(`跳过非 .tfl 文件: ${file.name}`);
+                    resolve(); // 跳过非 .tfl 文件
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const fileData = event.target.result;
+
+                    // 使用 JSZip 加载文件数据
+                    JSZip.loadAsync(fileData)
+                        .then(zip => {
+                            const flowFile = zip.file('flow');
+                            if (flowFile) {
+                                return flowFile.async('string'); // 以字符串形式读取 'flow' 文件
+                            } else {
+                                throw new Error("'flow' 文件未在压缩包中找到。");
+                            }
+                        })
+                        .then(content => {
+                            // 成功提取内容，创建下载链接
+                            createDownloadLink(content, file.name);
+                            resolve();
+                        })
+                        .catch(error => {
+                            // 处理失败，显示错误信息
+                            const errorNode = document.createElement('div');
+                            errorNode.textContent = `❌ 处理 ${file.name} 失败: ${error.message}`;
+                            errorNode.style.color = 'red';
+                            downloadLinksContainer.appendChild(errorNode);
+                            console.error(`处理 ${file.name} 失败:`, error);
+                            resolve();
+                        });
+                };
+                
+                reader.onerror = function() {
+                    const errorNode = document.createElement('div');
+                    errorNode.textContent = `❌ 读取 ${file.name} 文件失败。`;
+                    errorNode.style.color = 'red';
+                    downloadLinksContainer.appendChild(errorNode);
+                    console.error(`读取 ${file.name} 失败`);
+                    resolve();
+                };
+
+                reader.readAsArrayBuffer(file); // 以 ArrayBuffer 格式读取文件
+            });
+        }
+        
+        function createDownloadLink(content, originalFileName) {
+            // 生成新文件名
+            const baseName = originalFileName.replace(/\.tfl$/i, '');
+            const jsonFileName = `${baseName}.json`;
+
+            // 创建 Blob 对象
+            const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
+            
+            // 创建一个可下载的链接
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = jsonFileName;
+            a.textContent = `下载 ${jsonFileName}`;
+            a.className = 'download-link';
+            
+            // 将链接添加到页面中
+            downloadLinksContainer.appendChild(a);
+            
+            // 提示：可以考虑在一段时间后用 URL.revokeObjectURL(url) 来释放内存，
+            // 但对于这种用户会立即点击的场景，通常不是大问题。
+        }
+
+        function updateStatus(message, type = 'info') {
+            statusDiv.textContent = `状态：${message}`;
+            switch(type) {
+                case 'error':
+                    statusDiv.style.color = '#ff4d4f';
+                    break;
+                case 'success':
+                    statusDiv.style.color = '#52c41a';
+                    break;
+
+                default:
+                    statusDiv.style.color = '#555';
+            }
+        }
+    </script>
+
+</body>
+</html>

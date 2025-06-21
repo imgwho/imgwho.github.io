@@ -1,53 +1,59 @@
 # =========================================================================
-# Clash 手机版专用配置文件 (适用于 Clash for Android / iOS 等)
-# -------------------------------------------------------------------------
-# 说明：
-# 1. Google Gemini 和 Google AI Studio 流量走 VLESS 节点。
-# 2. 其他网址通过 PAC 模式（即规则模式 Rule Mode）访问，走 Hysteria2 节点。
-# 3. 中国大陆流量直连。
+# Clash 手机版专用配置文件 (兼容性优化版)
 # =========================================================================
 
 # -------------------------------------------------------------------------
 # 基本配置 (Basic Configuration)
 # -------------------------------------------------------------------------
-port: 7890         # HTTP 代理端口
-socks-port: 7891   # SOCKS5 代理端口
-allow-lan: false   # 是否允许局域网设备连接此代理，手机通常不需要对外开放
-mode: Rule         # 代理模式: Rule (规则模式) / Global (全局代理) / Direct (直连)
-log-level: info    # 日志级别: silent / error / warning / info / debug
-unified-delay: true # 统一延迟测试，通常建议开启
+port: 7890
+socks-port: 7891
+allow-lan: false
+mode: Rule
+log-level: info
+unified-delay: true
 
-# DNS 配置 (手机版通常内置DNS管理，但这里提供一个通用且稳定的配置)
+# DNS 配置
 dns:
   enable: true
-  # 增强模式，推荐 redir-host 或 fake-ip。
-  # redir-host 更稳定；fake-ip 更彻底防DNS污染。
   enhanced-mode: redir-host
-  # listen: 0.0.0.0:5353 # 手机版通常不需要在 0.0.0.0 监听 DNS 端口
-                         # 如果您的客户端允许或需要局域网共享，可以取消注释
+  # listen: 0.0.0.0:5353 # 根据需要决定是否开启
   nameservers:
-    - 114.114.114.114    # 中国电信DNS，解析国内网站
-    - 223.5.5.5          # 阿里云DNS，解析国内网站
-    - 8.8.8.8            # Google DNS，解析国外网站
-    - 1.1.1.1            # Cloudflare DNS，解析国外网站
+    - 114.114.114.114
+    - 223.5.5.5
+    - 8.8.8.8
+    - 1.1.1.1
   
-  fallback:              # 备用 DNS 服务器，在主DNS解析失败时使用
-    - "tls://dns.google:853"      # Google DNS over TLS
-    - "https://dns.cloudflare.com/dns-query" # Cloudflare DNS over HTTPS
+  fallback:
+    - "tls://dns.google:853"
+    - "https://dns.cloudflare.com/dns-query"
   
-  fallback-filter:       # Fallback DNS 过滤规则，通常保持默认
-    geoip: true
-    geosite: true
-    # 手机版通常不需要详细指定 ipcidr，除非有特殊需求
-    # ipcidr:
-    #   - "0.0.0.0/8"
-    #   # ... 其他IP段，根据需要添加
+  # fallback-filter 配置已修改
+  # 移除 geosite: true 和 geoip: true，以避免兼容性问题
+  # 保持 ipcidr，因为它通常是通用的
+  fallback-filter:
+    ipcidr:
+      - "0.0.0.0/8"
+      - "10.0.0.0/8"
+      - "100.64.0.0/10"
+      - "127.0.0.0/8"
+      - "169.254.0.0/16"
+      - "172.16.0.0/12"
+      - "192.0.0.0/24"
+      - "192.0.2.0/24"
+      - "192.88.99.0/24"
+      - "192.168.0.0/16"
+      - "198.18.0.0/15"
+      - "198.51.100.0/24"
+      - "203.0.113.0/24"
+      - "224.0.0.0/3"
+      - "::1/128"
+      - "fc00::/7"
+      - "fe80::/10"
 
 # -------------------------------------------------------------------------
 # 代理节点定义 (Proxies)
 # -------------------------------------------------------------------------
 proxies:
-  # 1. VLESS 节点 - 专用于 Google AI / Gemini
   - name: "wyl bwg (VLESS)"
     type: vless
     server: imwyl.cc
@@ -63,7 +69,6 @@ proxies:
     client-fingerprint: firefox
     udp: true
 
-  # 2. Hysteria2 节点 - 用于其他流量的默认代理
   - name: "hua racknerd (Hysteria2)"
     type: hysteria2
     server: 209.54.107.202
@@ -78,7 +83,6 @@ proxies:
 # 代理组定义 (Proxy Groups)
 # -------------------------------------------------------------------------
 proxy-groups:
-  # 1. Google AI 专用代理组
   - name: "Google AI Proxy"
     type: select
     proxies:
@@ -86,7 +90,6 @@ proxy-groups:
       - "hua racknerd (Hysteria2)"
       - "DIRECT"
 
-  # 2. 其他网址通用代理组 (PAC 模式下的默认代理)
   - name: "General Proxy (PAC)"
     type: select
     proxies:
@@ -97,7 +100,6 @@ proxy-groups:
 # 路由规则 (Rules)
 # -------------------------------------------------------------------------
 rules:
-  # --- Google AI Studio / Gemini 相关流量走 VLESS 节点 ---
   - DOMAIN-SUFFIX,gemini.google.com,Google AI Proxy
   - DOMAIN-SUFFIX,bard.google.com,Google AI Proxy
   - DOMAIN-SUFFIX,ai.google.com,Google AI Proxy
@@ -110,9 +112,7 @@ rules:
   - DOMAIN-SUFFIX,fonts.gstatic.com,Google AI Proxy
   - DOMAIN-SUFFIX,googleapis.com,Google AI Proxy
 
-  # --- 中国大陆流量直连 ---
   - GEOSITE,CN,DIRECT
   - GEOIP,CN,DIRECT,no-resolve
 
-  # --- 其他所有未被上述规则匹配的流量走 General Proxy (PAC) 组 ---
   - MATCH,General Proxy (PAC)

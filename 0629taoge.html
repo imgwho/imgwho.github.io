@@ -50,7 +50,9 @@
 
     .scroll-section {
       scroll-snap-align: start;
-      height: calc(var(--vh, 1vh) * 100);
+      min-height: calc(var(--vh, 1vh) * 100);
+      /* 修改: height -> min-height */
+      /* 如果希望内容较少的页面也能撑满全屏，保留min-height。如果希望页面高度由内容决定，则直接删除此行 */
       width: 100vw;
       display: flex;
       justify-content: center;
@@ -58,7 +60,8 @@
       flex-direction: column;
       position: relative;
       padding: 2rem 1.5rem;
-      overflow: hidden;
+      /* overflow: hidden; */
+      /* 删除或注释掉此行 */
     }
 
     .scroll-section::before {

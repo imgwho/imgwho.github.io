@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不完美女孩：人生有什么是必须要做的吗？</title>
+    <style>
+        :root {
+            --color-background: #0A0A0A;
+            --color-text: #EAEAEA;
+            --color-text-secondary: #999999;
+            --color-primary: #3B82F6;
+            --color-secondary: #10B981;
+            --color-warning: #F59E0B;
+            --color-surface: #1C1C1E;
+            --color-border: rgba(255, 255, 255, 0.1);
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            --font-heading: "SF Pro Display", "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--color-background);
+            color: var(--color-text);
+            font-family: var(--font-main);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* --- Navigation Bar --- */
+        .main-nav {
+            position: fixed; top: 0; left: 0; width: 100%;
+            padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.5);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--color-border);
+        }
+        .nav-logo { font-weight: 600; font-size: 1.2rem; color: var(--color-text); text-decoration: none; }
+        .nav-links a { color: var(--color-text-secondary); text-decoration: none; margin-left: 1.5rem; transition: color 0.3s ease; }
+        .nav-links a:hover { color: var(--color-text); }
+        
+        /* --- Main Content & Sections --- */
+        .content-wrapper { width: 100%; max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+        .content-section { padding: 5rem 0; }
+        .section-header { text-align: center; margin-bottom: 3rem; }
+        .section-title { font-family: var(--font-heading); font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 700; margin-bottom: 1rem; line-height: 1.2; }
+        .section-description { font-size: 1.05rem; color: var(--color-text-secondary); max-width: 650px; margin: 0 auto; }
+        .icon { display: inline-block; width: 1em; height: 1em; margin-right: 0.5em; vertical-align: -0.15em; }
+
+        /* --- Hero Section --- */
+        .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; flex-direction: column; padding: 0 1.5rem; }
+        .hero-title { font-size: clamp(2.5rem, 8vw, 4.5rem); background: -webkit-linear-gradient(45deg, #ffffff, #c7d2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.15; margin-bottom: 1rem; }
+        .hero-subtitle { font-size: clamp(1rem, 4vw, 1.2rem); max-width: 600px; }
+
+        /* --- Diagram & Infographic Styles --- */
+        .diagram-container {
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            overflow: hidden;
+        }
+        .diagram-title { font-size: 1.1rem; font-weight: 600; text-align: center; margin-bottom: 1rem; color: var(--color-text); }
+        .diagram-title .icon { font-size: 1.4rem; }
+
+        /* 1. Balance Scale Diagram */
+        .balance-scale { display: flex; align-items: flex-end; justify-content: center; gap: 1rem; width: 100%; }
+        .scale-arm { flex: 1; border: 2px solid var(--color-border); border-top: 0; padding: 1.5rem; border-radius: 0 0 12px 12px; text-align: center; }
+        .scale-arm h4 { font-size: 1rem; }
+        .scale-arm.positive h4 { color: var(--color-secondary); }
+        .scale-arm.challenge h4 { color: var(--color-warning); }
+        .fulcrum { display: flex; flex-direction: column; align-items: center; }
+        .fulcrum-point { width: 120px; height: 120px; background-color: var(--color-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 600; margin-bottom: -10px; z-index: 1; flex-shrink: 0; }
+        .fulcrum-base { width: 10px; height: 50px; background-color: var(--color-border); }
+
+        /* 2. Bridge Diagram [REVISED] */
+        .bridge-diagram { width: 100%; display: flex; justify-content: space-between; align-items: center; position: relative; padding: 2rem 0; }
+        .bridge-end { text-align: center; width: 120px; z-index: 2; }
+        .bridge-end div { font-size: 1.1rem; font-weight: 600; }
+        .bridge-end p { font-size: 0.9rem; color: var(--color-text-secondary); }
+        .bridge-path { position: absolute; top: 50%; left: 100px; right: 100px; height: 40px; margin-top: -20px; display: flex; justify-content: space-around; align-items: center; }
+        .bridge-path::before, .bridge-path::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-image: linear-gradient(to right, var(--color-border) 60%, transparent 40%);
+            background-size: 10px 2px;
+            background-repeat: repeat-x;
+        }
+        .bridge-path::before { top: -2px; }
+        .bridge-path::after { bottom: -2px; }
+        .bridge-plank { display: flex; align-items: center; font-size: 0.9rem; font-weight: 500; background: var(--color-surface); padding: 0.3rem 0.8rem; z-index: 1; border-radius: 50px; border: 1px solid var(--color-border); }
+        .bridge-plank .icon { font-size: 1.1rem; }
+
+        /* 3. Diverging Paths Diagram */
+        .paths-diagram { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .path-start { background-color: var(--color-primary); color: white; padding: 0.8rem 1.5rem; border-radius: 50px; margin-bottom: 2rem; }
+        .paths-container { display: flex; justify-content: space-around; width: 100%; gap: 2rem; }
+        .path { flex: 1; background-color: rgba(255,255,255,0.05); border-radius: 16px; padding: 1.5rem; border-left: 3px solid; }
+        .path-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+        .path ul { list-style: none; padding-left: 0; }
+        .path li { margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary); }
+
+        /* 4. Growth Model Diagram */
+        .growth-models { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; width: 100%; }
+        .growth-model-card { background-color: rgba(255,255,255,0.05); border-radius: 16px; padding: 1.5rem; }
+        .growth-model-card h4 { text-align: center; margin-bottom: 1.5rem; }
+        .tree-diagram { text-align: center; }
+        .tree-trunk { width: 40px; height: 50px; background: #8B4513; margin: 0 auto; }
+        .tree-branches { border-top: 4px solid #8B4513; border-radius: 4px; padding-top: 1rem; display: flex; justify-content: space-around; gap: 0.5rem; flex-wrap: wrap;}
+        .tree-branch { font-size: 0.8rem; background: var(--color-secondary); color: var(--color-background); padding: 0.3rem 0.6rem; border-radius: 50px; }
+        .funnel-diagram { display: flex; flex-direction: column; align-items: center; }
+        .funnel-layer { border: 2px solid var(--color-border); border-bottom: 0; text-align: center; padding: 0.5rem; }
+        .funnel-layer-1 { width: 100%; border-radius: 12px 12px 0 0; }
+        .funnel-layer-2 { width: 80%; }
+        .funnel-layer-3 { width: 60%; border-bottom: 2px solid var(--color-border); border-radius: 0 0 12px 12px; }
+
+        /* 5. Before/After Card Diagram */
+        .mindset-shift { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; }
+        .mindset-card { flex: 1; padding: 1.5rem; border-radius: 16px; border: 1px solid var(--color-border); }
+        .mindset-card h4 { margin-bottom: 1rem; }
+        .mindset-card.before h4 { color: var(--color-warning); }
+        .mindset-card.after h4 { color: var(--color-secondary); }
+        .mindset-card ul { list-style: none; color: var(--color-text-secondary); font-size: 0.9rem; }
+        .shift-arrow { font-size: 2.5rem; color: var(--color-primary); }
+
+        /* 6. Flywheel Diagram */
+        .flywheel-diagram { position: relative; width: 300px; height: 300px; display: flex; align-items: center; justify-content: center; margin: 2rem auto; }
+        .flywheel-center { width: 120px; height: 120px; background: var(--color-primary); color: white; border-radius: 50%; display: flex; text-align: center; align-items: center; justify-content: center; z-index: 2; font-weight: 600; }
+        .flywheel-spoke { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+        .flywheel-content { position: absolute; left: 50%; top: 50%; width: 120px; margin-left: -60px; margin-top: -30px; text-align: center; }
+        .flywheel-content .icon { font-size: 1.5rem; display: block; margin: 0 auto 0.5rem; color: var(--color-text-secondary); }
+        #flywheel-1 { transform: translateY(-115px); }
+        #flywheel-2 { transform: rotate(120deg) translateY(-115px); }
+        #flywheel-2 .flywheel-content { transform: rotate(-120deg); }
+        #flywheel-3 { transform: rotate(240deg) translateY(-115px); }
+        #flywheel-3 .flywheel-content { transform: rotate(-240deg); }
+
+        /* 7. Checklist Diagram */
+        .checklist-diagram { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .checklist-column { background-color: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 16px; }
+        .checklist-title { display: flex; align-items: center; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; }
+        .checklist-column.good .checklist-title { color: var(--color-secondary); }
+        .checklist-column.caution .checklist-title { color: var(--color-warning); }
+        .checklist-column ul { list-style: none; }
+        .checklist-column li { margin-bottom: 0.5rem; color: var(--color-text-secondary); }
+        
+        /* Footer & CTA Button */
+        .main-footer { text-align: center; padding: 4rem 1.5rem; }
+        .footer-cta-title { font-size: 1.8rem; font-weight: 600; margin-bottom: 1rem; }
+        .footer-cta-subtitle { color: var(--color-text-secondary); margin-bottom: 2rem; }
+        .cta-button { 
+            display: inline-block; 
+            background-color: var(--color-primary); 
+            color: white; 
+            padding: 0.8rem 2rem; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            font-weight: 600; 
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .cta-button:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2); 
+        }
+        .footer-credit { font-size: 0.8rem; margin-top: 3rem; color: var(--color-text-secondary); }
+
+        /* Animation */
+        .fade-in-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .fade-in-up.is-visible { opacity: 1; transform: translateY(0); }
+        
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 768px) {
+            .main-nav { justify-content: center; padding: 1rem; }
+            .content-section { padding: 4rem 0; }
+            .diagram-container { padding: 1.5rem; }
+            
+            .balance-scale { flex-direction: column; }
+            
+            .bridge-diagram {
+                flex-direction: column;
+                gap: 0;
+            }
+            .bridge-diagram .bridge-end, .bridge-diagram .bridge-plank-wrapper {
+                position: relative;
+                padding-bottom: 2rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+            .bridge-diagram .bridge-end:not(:last-of-type)::after, 
+            .bridge-diagram .bridge-plank-wrapper:not(:last-of-type)::after {
+                content: '';
+                position: absolute;
+                bottom: 0.5rem;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 2px;
+                height: 1.5rem;
+                background-image: linear-gradient(to bottom, var(--color-border) 60%, transparent 40%);
+                background-size: 2px 10px;
+            }
+             .bridge-path {
+                position: static;
+                flex-direction: column;
+                margin-top: 0;
+                margin-bottom: 0;
+                height: auto;
+                gap: 0;
+            }
+            .bridge-plank { margin: 0; }
+
+            .paths-container, .growth-models, .checklist-diagram { flex-direction: column; grid-template-columns: 1fr; }
+            .mindset-shift { flex-direction: column; }
+            .shift-arrow { transform: rotate(90deg); margin: 1rem 0; }
+            
+            .flywheel-diagram {
+                transform: scale(0.85);
+            }
+        }
+    </style>
+</head>
+<body>
+    <svg width="0" height="0" style="position:absolute">
+      <defs>
+        <symbol id="icon-balance" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16.5a2.5 2.5 0 0 0-5 0"></path><path d="M12 2v20"></path><path d="M12 6H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2"></path><path d="M12 18h8a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-2"></path></symbol>
+        <symbol id="icon-bridge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10h12v3a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-3Z"></path><path d="M17 10V5c0-1.7-1.3-3-3-3h-4c-1.7 0-3 1.3-3 3v5"></path><path d="M8 15v5"></path><path d="M16 15v5"></path><path d="M2 15h20"></path></symbol>
+        <symbol id="icon-path" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3.7a2 2 0 0 1 2 2v12.6a2 2 0 0 1-2 2"></path><path d="M6 18.3a2 2 0 0 1-2-2V5.7a2 2 0 0 1 2-2"></path><path d="M12 3v18"></path></symbol>
+        <symbol id="icon-tree" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-8"></path><path d="M20 22v-8"></path><path d="M4 22v-8"></path><path d="M16 14h.01"></path><path d="M16 10h.01"></path><path d="M16 6h.01"></path><path d="M8 14h.01"></path><path d="M8 10h.01"></path><path d="M8 6h.01"></path><path d="M12 14h.01"></path><path d="M12 10h.01"></path><path d="M12 6h.01"></path></symbol>
+        <symbol id="icon-mindset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5c-4.23.27-7.73-3.18-7.96-7.41-.23-4.24 3.23-7.8 7.47-7.95 4.24-.15 7.8 3.29 7.95 7.53.15 4.24-3.3 7.8-7.53 7.95-1.57.06-3.04-.3-4.32-1.07"></path><path d="M12 13.5a2.5 2.5 0 0 1-4.15-2.51c.32-1.12 1.3-2 2.48-2a2.5 2.5 0 0 1 2.5 2.5c0 .28-.05.55-.13.8"></path><path d="M17.5 10.5c.34-1.25.13-2.6-.54-3.66"></path><path d="M19.5 8.5c.42-1.55.16-3.19-.7-4.4"></path><path d="M21.5 6.5c.48-1.81.18-3.75-.85-5.1"></path></symbol>
+        <symbol id="icon-flywheel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5 2.2 5 5 5 5-2.2 5-5"></path><path d="M7 7c0-2.8 2.2-5 5-5s5 2.2 5 5"></path><path d="M12 12v10"></path><path d="m19 5-7 7-7-7"></path></symbol>
+        <symbol id="icon-checklist" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 12c0-5.25-4.25-9.5-9.5-9.5S2.5 6.75 2.5 12s4.25 9.5 9.5 9.5"></path><path d="m8.5 12.5 2 2 5-5"></path></symbol>
+        <symbol id="icon-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></symbol>
+        <symbol id="icon-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></symbol>
+        <symbol id="icon-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5C17.7 10.2 18 9 18 7.5a6 6 0 0 0-12 0c0 1.5.3 2.7 1.5 3.5.7.7 1.2 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></symbol>
+        <symbol id="icon-question" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></symbol>
+        <symbol id="icon-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.94 14.32c.32.32.79.32 1.12 0l4.62-4.62c.32-.32.32-.79 0-1.12L14.32 7.2c-.32-.32-.79-.32-1.12 0L8.58 11.8c-.32.32-.32.79 0 1.12l1.36 1.4z"></path><path d="m21 12-2.34 2.34c-.32.32-.79.32-1.12 0l-1.2-1.2c-.32-.32-.32-.79 0-1.12L18.68 9.7c.32-.32.79-.32 1.12 0L21 11c.32.32.32.79 0 1.12z"></path><path d="m12 3-2.34 2.34c-.32.32-.79.32-1.12 0l-1.2-1.2c-.32-.32-.32-.79 0-1.12L9.7 1.34c.32-.32.79-.32 1.12 0L12 3c.32.32.32.79 0 1.12z"></path><path d="M3 12c0-.46.15-.81.34-1.12L5.68 8.54c.32-.32.79-.32 1.12 0l1.2 1.2c.32.32.32.79 0 1.12L5.68 14.3c-.32.32-.79.32-1.12 0L3.34 13.12A1.33 1.33 0 0 1 3 12z"></path><path d="M12 21c.46 0 .81-.15 1.12-.34l2.34-2.34c.32-.32.32-.79 0-1.12l-1.2-1.2c-.32-.32-.79-.32-1.12 0l-2.34 2.34c-.32.32-.32.79 0 1.12.3.2.74.34 1.12.34z"></path></symbol>
+      </defs>
+    </svg>
+
+    <nav class="main-nav">
+        <a href="#" class="nav-logo">不完美女孩</a>
+        <div class="nav-links">
+            <a href="#section-what-is-strength">什么是优势</a>
+            <a href="#section-journey">成长之路</a>
+            <a href="#section-secrets">成功秘诀</a>
+            <a href="#section-benefits">终极收获</a>
+        </div>
+    </nav>
+
+    <main>
+        <header class="hero content-wrapper fade-in-up">
+            <h1 class="hero-title">人生没有标准答案<br>但你可以活出自己的版本</h1>
+            <p class="hero-subtitle">《不完美女孩》播客精选<br>优势教练，如何将与生俱来的天赋，转化为可持续发展的事业？<br>听听两位先行者的故事与心法。</p>
+        </header>
+        
+        <div class="content-wrapper">
+            <section id="section-what-is-strength" class="content-section fade-in-up">
+                <div class="section-header">
+                    <h2 class="section-title">什么是优势？</h2>
+                    <p class="section-description">它并非简单的“优点”，而是一种中性的、深植于内心的自然模式。理解这一点，是开启自我认知的第一步。</p>
+                </div>
+                <div class="diagram-container">
+                    <h3 class="diagram-title"><svg class="icon"><use href="#icon-balance"></use></svg>优势的一体两面</h3>
+                    <div class="balance-scale">
+                        <div class="scale-arm positive"><h4><svg class="icon" style="color:var(--color-secondary)"><use href="#icon-check"></use></svg>优势面</h4><p>在面对冲突时能柔和化解，让各方都感到被体谅和理解。</p></div>
+                        <div class="fulcrum">
+                            <div class="fulcrum-point">体谅<span>Empathy</span></div>
+                            <div class="fulcrum-base"></div>
+                        </div>
+                        <div class="scale-arm challenge"><h4><svg class="icon" style="color:var(--color-warning)"><use href="#icon-warning"></use></svg>挑战面</h4><p>有时会因过于照顾他人感受而忽略自己的需求，显得不够“强势”。</p></div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="content-section fade-in-up">
+                <div class="section-header">
+                    <h2 class="section-title">优势教练的角色</h2>
+                    <p class="section-description">教练不只是“解读师”，更像是一位同行者和催化剂，帮助你搭建从“认识自己”到“活出自己”的桥梁。</p>
+                </div>
+                <div class="diagram-container">
+                     <h3 class="diagram-title"><svg class="icon"><use href="#icon-bridge"></use></svg>搭建认知之桥</h3>
+                     <div class="bridge-diagram">
+                         <div class="bridge-end">
+                            <svg class="icon" style="font-size:3rem; color:var(--color-warning);"><use href="#icon-warning"></use></svg>
+                            <div>迷茫的现状</div>
+                            <p>不确定方向，受困于内耗</p>
+                         </div>
+                         <div class="bridge-path">
+                             <div class="bridge-plank-wrapper">
+                                <span class="bridge-plank"><svg class="icon"><use href="#icon-lightbulb"></use></svg>积极视角</span>
+                             </div>
+                             <div class="bridge-plank-wrapper">
+                                <span class="bridge-plank"><svg class="icon"><use href="#icon-question"></use></svg>深度提问</span>
+                            </div>
+                            <div class="bridge-plank-wrapper">
+                                <span class="bridge-plank"><svg class="icon"><use href="#icon-sparkle"></use></svg>点亮天赋</span>
+                            </div>
+                         </div>
+                         <div class="bridge-end">
+                            <svg class="icon" style="font-size:3rem; color:var(--color-secondary);"><use href="#icon-star"></use></svg>
+                            <div>清晰的未来</div>
+                            <p>找到适合的土壤与路径</p>
+                         </div>
+                     </div>
+                </div>
+            </section>
+
+            <section id="section-journey" class="content-section fade-in-up">
+                <div class="section-header">
+                    <h2 class="section-title">两位教练的起点：从0到1</h2>
+                    <p class="section-description">起点不同，但都源于过往的积累。你作为一个人，永远不是从零开始。</p>
+                </div>
+                <div class="diagram-container">
+                    <h3 class="diagram-title"><svg class="icon"><use href="#icon-path"></use></svg>两条截然不同的路</h3>
+                    <div class="paths-diagram">
+                        <div class="path-start">接触优势测评</div>
+                        <div class="paths-container">
+                            <div class="path" style="border-color: var(--color-primary);">
+                                <h4 class="path-title">牙牙：顺势而为的副业之路</h4>
+                                <ul>
+                                    <li>🌱 在谷歌优势文化土壤中成长</li>
+                                    <li>🤝 依托原有跑团人脉启动</li>
+                                    <li>⏰ 挑战：在主业与副业间平衡时间</li>
+                                </ul>
+                            </div>
+                            <div class="path" style="border-color: var(--color-secondary);">
+                                <h4 class="path-title">醒醒：摸索前行的全职之路</h4>
+                                <ul>
+                                    <li>✍️ 依托公众号私域流量</li>
+                                    <li>💰 从99元低价咨询开始试水</li>
+                                    <li>🎢 挑战：经历数次想放弃的时刻</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="content-section fade-in-up">
+                 <div class="section-header">
+                    <h2 class="section-title">规模化之路：从1到60</h2>
+                    <p class="section-description">当走过最初的探索期，如何持续成长？两位教练展现了两种不同的增长模型与挑战。</p>
+                </div>
+                <div class="diagram-container">
+                    <h3 class="diagram-title"><svg class="icon"><use href="#icon-tree"></use></svg>增长模型对比</h3>
+                    <div class="growth-models">
+                        <div class="growth-model-card">
+                            <h4>醒醒：自然生长模型</h4>
+                            <div class="tree-diagram">
+                                <div class="tree-branches">
+                                    <div class="tree-branch">培训</div>
+                                    <div class="tree-branch">专栏</div>
+                                    <div class="tree-branch">陪跑</div>
+                                </div>
+                                <div class="tree-trunk"></div>
+                                <div>核心咨询</div>
+                            </div>
+                            <p style="font-size:0.9rem; text-align:center; color: var(--color-text-secondary); margin-top:1rem;">根据市场需求，业务像大树一样自然长出新枝干。</p>
+                        </div>
+                        <div class="growth-model-card">
+                            <h4>牙牙：新客获取模型</h4>
+                             <div class="funnel-diagram">
+                                <div class="funnel-layer funnel-layer-1">持续获客</div>
+                                <div class="funnel-layer funnel-layer-2">转化</div>
+                                <div class="funnel-layer funnel-layer-3">交付</div>
+                            </div>
+                             <p style="font-size:0.9rem; text-align:center; color: var(--color-text-secondary); margin-top:1rem;">产品复购率不高，需要不断有新客户进入，才能维持增长。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section fade-in-up">
+                <div class="section-header">
+                    <h2 class="section-title">心态的蜕变</h2>
+                    <p class="section-description">商业化过程中最大的心理障碍之一，是如何看待“指出客户痛点”。这个转变，是从业余到专业的关键一步。</p>
+                </div>
+                <div class="diagram-container">
+                    <h3 class="diagram-title"><svg class="icon"><use href="#icon-mindset"></use></svg>从“销售心态”到“助人心态”</h3>
+                    <div class="mindset-shift">
+                        <div class="mindset-card before">
+                            <h4><svg class="icon"><use href="#icon-warning"></use></svg>转变前</h4>
+                            <ul>
+                                <li>把讨论问题当成成交手段</li>
+                                <li>害怕戳人痛点显得“无耻”</li>
+                                <li>不好意思主动售卖产品</li>
+                            </ul>
+                        </div>
+                        <div class="shift-arrow">&rarr;</div>
+                        <div class="mindset-card after">
+                            <h4><svg class="icon"><use href="#icon-check"></use></svg>转变后</h4>
+                            <ul>
+                                <li>发心是真正想帮对方解决问题</li>
+                                <li>看见痛点并提供可能的解药</li>
+                                <li>自信地提供自己的价值</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-secrets" class="content-section fade-in-up">
+                <div class="section-header">
+                    <h2 class="section-title">成功的核心秘诀</h2>
+                    <p class="section-description">能长期走下去的教练，往往都在驱动一个属于自己的“成功飞轮”。</p>
+                </div>
+                <div class="diagram-container">
+                    <h3 class="diagram-title"><svg class="icon"><use href="#icon-flywheel"></use></svg>优势事业成功飞轮</h3>
+                    <div class="flywheel-diagram">
+                        <div class="flywheel-center">持续成长</div>
+                        <div class="flywheel-spoke" id="flywheel-1">
+                            <div class="flywheel-content">
+                                <svg class="icon"><use href="#icon-mindset"></use></svg>
+                                <h4>长期心态</h4>
+                            </div>
+                        </div>
+                         <div class="flywheel-spoke" id="flywheel-2">
+                            <div class="flywheel-content">
+                                <svg class="icon"><use href="#icon-checklist"></use></svg>
+                                <h4>正反馈循环</h4>
+                            </div>
+                        </div>
+                         <div class="flywheel-spoke" id="flywheel-3">
+                            <div class="flywheel-content">
+                                <svg class="icon"><use href="#icon-bridge"></use></svg>
+                                <h4>杠杆与合作</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="content-section fade-in-up">
+                <div class="section-header">
+                    <h2 class="section-title">谁适合这场旅程？</h2>
+                    <p class="section-description">天赋并非门槛，初心和状态才是。这并非一条捷径，而是一场需要耐心和热爱的长跑。</p>
+                </div>
+                <div class="diagram-container">
+                    <div class="checklist-diagram">
+                        <div class="checklist-column good">
+                            <h3 class="checklist-title"><svg class="icon"><use href="#icon-check"></use></svg>理想画像</h3>
+                            <ul>
+                                <li><strong>初心：</strong>想先成为自己的优势教练</li>
+                                <li><strong>心态：</strong>愿意长期投入，不急于变现</li>
+                                <li><strong>状态：</strong>有一定人生阅历，财务状态稳定</li>
+                                <li><strong>渴望：</strong>真心热爱探索人，帮助人</li>
+                            </ul>
+                        </div>
+                        <div class="checklist-column caution">
+                             <h3 class="checklist-title"><svg class="icon"><use href="#icon-warning"></use></svg>谨慎考虑</h3>
+                            <ul>
+                                <li><strong>目标：</strong>想赚快钱，短期内高回报</li>
+                                <li><strong>状态：</strong>身负重债，生活压力巨大</li>
+                                <li><strong>阅历：</strong>刚毕业或人生经验较少</li>
+                                <li><strong>心态：</strong>无法忍受前期的寂寞和投入</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="section-benefits" class="content-section fade-in-up">
+                <div class="section-header">
+                    <h2 class="section-title">终极收获</h2>
+                    <p class="section-description">这份事业带来的果实，远超最初一份工作的预期。它是一场关乎事业、关系和自我的全面升级。</p>
+                </div>
+                <div class="diagram-container">
+                     <h3 class="diagram-title"><svg class="icon"><use href="#icon-star"></use></svg>远超预期的丰盛果实</h3>
+                     <p style="text-align:center; max-width: 600px; color:var(--color-text-secondary)">成为优势教练，最终收获的是一个更整合、更自洽的人生版本。</p>
+                    <div style="width:100%; text-align:left; margin-top:2rem;">
+                        <p><strong>职业破圈：</strong>能见度大幅提升，链接到过去无法触及的人脉与机会。</p>
+                        <p><strong>关系改善：</strong>更深刻地理解自己和他人，改善了与家人、伴侣、同事的相处模式。</p>
+                        <p><strong>自我成长：</strong>获得了前所未有的笃定感，内心更松弛，更清楚人生的方向。</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="content-wrapper fade-in-up">
+            <h2 class="footer-cta-title">意犹未尽？</h2>
+            <p class="footer-cta-subtitle">收听《不完美女孩》完整播客，解锁更多深度见解。<br>下一期，主播将直接回答听众最关心的热点问题，敬请期待！</p>
+            <a href="https://www.xiaoyuzhoufm.com/episode/6856b6422a38b4d979cdf497" class="cta-button">收听完整播客</a>
+            <p class="footer-credit">内容精选自《不完美女孩》播客第026期 | 网页由瓜瓜协同Gemini根据内容生成</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const animatedElements = document.querySelectorAll('.fade-in-up');
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                animatedElements.forEach(el => observer.observe(el));
+            } else {
+                animatedElements.forEach(el => el.classList.add('is-visible'));
+            }
+        });
+    </script>
+
+</body>
+</html>
